@@ -85,10 +85,71 @@ Terminals
 
 ### lanterna.terminal/get-terminal
 ### lanterna.terminal/start
+
+    :::clojure
+    (start terminal)
+
+Start the given terminal.  Terminals must be started before they can be used.
+
+Consider using [`in-terminal`](#lanternaterminalin-terminal) instead if you
+don't need detailed control of the starting and stopping.
+
 ### lanterna.terminal/stop
+
+    :::clojure
+    (stop terminal)
+
+Stop the given terminal.  Terminals must be stopped after you're done with them,
+otherwise you risk corrupting the user's console.
+
+Don't try to do anything to the Terminal after you stop it.
+
+I'm not sure if you can "restart" a terminal once it's been stopped.  TODO: Find
+out.
+
+Consider using [`in-terminal`](#lanternaterminalin-terminal) instead if you
+don't need detailed control of the starting and stopping.
+
 ### lanterna.terminal/in-terminal
+
+    :::clojure
+    (in-terminal terminal & body)
+
+Start the given terminal, perform the body of expressions, and stop the terminal
+afterward.
+
+This is a macro.
+
+The stopping will be done in a try/finally block, so you can be confident it
+will actually happen.
+
+Use this if you don't need detailed control of the terminal starting and
+stopping process.
+
 ### lanterna.terminal/move-cursor
+
+    :::clojure
+    (move-cursor terminal x y)
+
+Move the cursor to a specific location on the screen.
+
 ### lanterna.terminal/put-character
+
+    :::clojure
+    (put-character terminal ch)
+
+Draw the character at the current cursor location.
+
+Also moves the cursor one character to the right, so a sequence of calls will
+output next to each other.
+
+    :::clojure
+    (put-character terminal ch x y)
+
+Draw the character at the specified cursor location.
+
+Also moves the cursor one character to the right.
+
 ### lanterna.terminal/put-string
 ### lanterna.terminal/set-fg-color
 ### lanterna.terminal/set-bg-color

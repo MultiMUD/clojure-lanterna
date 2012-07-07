@@ -108,12 +108,17 @@
 (defn put-character
   "Draw the character at the current cursor location.
 
-  Moved the cursor one character to the right, so a sequence of calls will
+  If x and y are given, moves the cursor there first.
+
+  Moves the cursor one character to the right, so a sequence of calls will
   output next to each other.
 
   "
-  [terminal ch]
-  (.putCharacter terminal ch))
+  ([terminal ch]
+   (.putCharacter terminal ch))
+  ([terminal ch x y]
+   (move-cursor terminal x y)
+   (put-character terminal ch)))
 
 (defn put-string [terminal s]
   (dorun (map (partial put-character terminal)
