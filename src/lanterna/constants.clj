@@ -20,21 +20,6 @@
    :yellow  com.googlecode.lanterna.terminal.Terminal$Color/YELLOW
    :default com.googlecode.lanterna.terminal.Terminal$Color/DEFAULT})
 
-(def enter-styles
-  {:bold com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BOLD
-   :reverse com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_REVERSE
-   :blinking com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BLINK
-   :underline com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_UNDERLINE})
-
-(def exit-styles
-  {:bold com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_BOLD
-   :reverse com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_REVERSE
-   :blinking com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_BLINK
-   :underline com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_UNDERLINE})
-
-(def reset-style
-  com.googlecode.lanterna.terminal.Terminal$SGR/RESET_ALL)
-
 (def styles
   {:bold ScreenCharacterStyle/Bold
    :reverse ScreenCharacterStyle/Reverse
@@ -61,3 +46,18 @@
    com.googlecode.lanterna.input.Key$Kind/Unknown :unknown
    com.googlecode.lanterna.input.Key$Kind/CursorLocation :cursor-location})
 
+
+(def enter-styles
+  {:bold com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BOLD
+   :reverse com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_REVERSE
+   :blinking com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BLINK
+   :underline com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_UNDERLINE})
+
+(def exit-styles
+  {:bold com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_BOLD
+   :reverse com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_REVERSE
+   :blinking com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_BLINK
+   :underline com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_UNDERLINE})
+
+(def reset-style
+  com.googlecode.lanterna.terminal.Terminal$SGR/RESET_ALL)

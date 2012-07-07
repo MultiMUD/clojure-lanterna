@@ -1,6 +1,6 @@
 (defproject clojure-lanterna "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "A Clojure wrapper around the Lanterna terminal output library."
+  :url "http://sjl.bitbucket.org/clojure-lanterna/"
   :license {:name "LGPL"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.googlecode.lanterna/lanterna "2.0-SNAPSHOT"]]

@@ -38,16 +38,14 @@
 
   "
   ([] (get-screen :auto {}))
+  ([kind] (get-screen kind {}))
   ([kind {:as opts
           :keys [cols rows charset resize-listener]
           :or {:cols 80
                :rows 24
                :charset :utf-8
                :resize-listener nil}}]
-   (let [terminal (t/get-terminal kind opts)]
-     (when resize-listener
-       (t/add-resize-listener terminal resize-listener))
-     (new Screen terminal))))
+   (new Screen (t/get-terminal kind opts))))
 
 
 (defn start
