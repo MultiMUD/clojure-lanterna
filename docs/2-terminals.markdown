@@ -6,6 +6,8 @@ The lowest layer of Lanterna (and thus clojure-lanterna) is a Terminal.
 You can use terminals to do the stuff you normally think of using a curses
 library for.
 
+[TOC]
+
 Getting a Terminal
 ------------------
 
@@ -162,8 +164,14 @@ one if there's none already buffered) you can use `get-key-blocking`:
     ;
     ; => \a
 
-Normal alphanumeric keys are returned as simple Character objects.  Special keys
-are returned as Clojure keywords like `:enter`, `:page-up`, and `backspace`.
+Normal alphanumeric keys are returned as simple Character objects like `\a`.
+
+Note that there's no special attribute to determine if the Shift key was
+pressed, but the Characters will be the correct ones.  For example, if the user
+presses "Shift-a" the Character you get will be `\A` instead of `\a`.
+
+Special keys are returned as Clojure keywords like `:enter`, `:page-up`, and
+`:backspace`.
 
 You can get a full list of the supported special keys by peeking in Lanterna's
 constants namespace (or just consult the reference documentation):
@@ -248,4 +256,4 @@ What's Next?
 ------------
 
 Now that you've covered all of the major concepts of Lanterna's terminal layer,
-it's time to move on to the next layer: screens.
+it's time to move on to the next layer: [screens](../screens/).

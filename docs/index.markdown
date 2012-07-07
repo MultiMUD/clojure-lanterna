@@ -1,6 +1,15 @@
 clojure-lanterna is a thin wrapper around the [Lanterna][] Java library to make
 it more Clojure-friendly.
 
+**It's still pre-1.0, so expect brokenness and backwards incompatibility.  Once
+it hits 1.0 you can be confident I'll stop breaking your shit all the time.**
+
+**License:** GNU Lesser GPL (yes, you can link with code under another license!)  
+**Documentation:** <http://sjl.bitbucket.org/clojure-lanterna/>  
+**Issues:** <http://github.com/sjl/clojure-lanterna/issues/>  
+**Git:** <http://github.com/sjl/clojure-lanterna/>  
+**Mercurial:** <http://bitbucket.org/sjl/clojure-lanterna/>
+
 What is It?
 -----------
 
