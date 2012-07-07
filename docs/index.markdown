@@ -62,7 +62,7 @@ Okay, fine:
 
     (s/put-string scr 10 10 "Hello, world!")
     (s/put-string scr 10 11 "Press any key to exit!")
-    (get-key-blocking)
+    (s/get-key-blocking)
 
     (s/stop screen)
 
