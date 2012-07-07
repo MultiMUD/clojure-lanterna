@@ -20,11 +20,13 @@
 
   Options can contain one or more of the following keys:
 
-  :cols    - Width of the desired screen in characters. (default 80)
-  :rows    - Height of the desired screen in characters. (default 24)
-  :charset - Charset of the desired screen.
-             Can be any of (keys lanterna.constants/charsets).
-             (default :utf-8)
+  :cols    - Width of the desired screen in characters (default 80).
+  :rows    - Height of the desired screen in characters (default 24).
+  :charset - Charset of the desired screen.  Can be any of
+             (keys lanterna.constants/charsets) (default :utf-8).
+  :resize-listener - A function to call when the screen is resized.  This
+                     function should take two parameters: the new number of
+                     columns, and the new number of rows.
 
   NOTE: The options are really just a suggestion!
 
