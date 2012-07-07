@@ -47,3 +47,24 @@ To get started:
 
 [Lanterna]: https://code.google.com/p/lanterna/
 [lanterna-docs]: https://code.google.com/p/lanterna/wiki/DevelopmentGuide
+
+I Want a Hello, World!
+----------------------
+
+Okay, fine:
+
+    :::clojure
+    (require '[lanterna.screen :as s])
+
+    (def scr (s/get-screen))
+
+    (s/stop screen)
+
+    (s/put-string scr 10 10 "Hello, world!")
+    (s/put-string scr 10 11 "Press any key to exit!")
+    (get-key-blocking)
+
+    (s/stop screen)
+
+But really, please read the docs if you actually want to use this.  They're not
+that long.

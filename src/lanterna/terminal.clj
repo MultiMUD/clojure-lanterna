@@ -32,20 +32,22 @@
   kind can be one of the following:
 
   :auto   - Try to guess the right type of terminal based on OS, whether
-  there's a windowing environment, etc
+            there's a windowing environment, etc
   :swing  - Force a Swing-based terminal.
   :text   - Force a console (i.e.: non-Swing) terminal.  Try to guess the
-  appropriate kind of console (UNIX/Cygwin) by the OS.
+            appropriate kind of console (UNIX/Cygwin) by the OS.
   :unix   - Force a UNIX console terminal.
   :cygwin - Force a Cygwin console terminal.
 
   Options can contain one or more of the following keys:
 
-  :cols    - Width of the desired terminal in characters. (default 80)
-  :rows    - Height of the desired terminal in characters. (default 24)
-  :charset - Charset of the desired terminal.
-  Can be any of (keys lanterna.constants/charsets).
-  (default :utf-8)
+  :cols    - Width of the desired terminal in characters (default 80).
+  :rows    - Height of the desired terminal in characters (default 24).
+  :charset - Charset of the desired terminal.  Can be any of
+             (keys lanterna.constants/charsets) (default :utf-8).
+  :resize-listener - A function to call when the terminal is resized.  This
+                     function should take two parameters: the new number of
+                     columns, and the new number of rows.
 
   NOTE: The options are really just a suggestion!
 
@@ -120,9 +122,20 @@
    (move-cursor terminal x y)
    (put-character terminal ch)))
 
-(defn put-string [terminal s]
-  (dorun (map (partial put-character terminal)
-              s)))
+(defn put-string
+  "Draw the string at the current cursor location.
+
+  If x and y are given, moves the cursor there first.
+
+  The cursor will end up at the position directly after the string.
+
+  "
+  ([terminal s]
+   (dorun (map (partial put-character terminal)
+               s)))
+  ([terminal s x y]
+   (move-cursor terminal x y)
+   (put-string terminal s)))
 
 
 (defn set-fg-color [terminal color]
