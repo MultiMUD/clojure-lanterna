@@ -55,7 +55,7 @@
 
   "
   [screen]
-  (.start screen))
+  (.startScreen screen))
 
 (defn stop
   "Stop the screen.  Consider using in-screen instead.
@@ -67,16 +67,16 @@
 
   "
   [screen]
-  (.start screen))
+  (.stopScreen screen))
 
 
 (defmacro in-screen
   "Start the given screen, perform the body, and stop the screen afterward."
   [screen & body]
-  `(do
-     (start screen)
+  `(let [screen# ~screen]
+     (start screen#)
      (try ~@body
-       (finally (stop screen)))))
+       (finally (stop screen#)))))
 
 
 (defn redraw
@@ -100,8 +100,8 @@
   appears in a specific place.
 
   "
-  [screen]
-  (t/move-cursor (::terminal (meta screen))))
+  [screen x y]
+  (.setCursorPosition screen x y))
 
 (defn put-string
   "Put a string on the screen buffer, ready to be drawn at the next redraw.
@@ -124,16 +124,17 @@
   (default #{})
 
   "
-  [screen x y s {:as opts
-                 :keys [fg bg styles]
-                 :or {:fg :default
-                      :bg :default
-                      :styles #{}}}]
-  (let [styles (set (map c/styles styles))]
-    (.putString screen x y s
-                (c/colors fg)
-                (c/colors bg)
-                styles)))
+  ([screen x y s] (put-string screen x y s {}))
+  ([screen x y s {:as opts
+                  :keys [fg bg styles]
+                  :or {fg :default
+                       bg :default
+                       styles #{}}}]
+   (let [styles (set (map c/styles styles))]
+     (.putString screen x y s
+                 (c/colors fg)
+                 (c/colors bg)
+                 styles))))
 
 
 (defn get-key
@@ -167,7 +168,7 @@
     (if (nil? k)
       (do
         (Thread/sleep 50)
-        (recur terminal))
+        (recur screen))
       k)))
 
 
@@ -198,18 +199,19 @@
 ;    (t/get-keys-until (::terminal (meta screen)) echo)))
 
 
-; (defn add-resize-listener
-;   "Create a listener that will call the supplied fn when the screen is resized.
+(defn add-resize-listener
+  "Create a listener that will call the supplied fn when the screen is resized.
 
-;   The function must take two arguments: the new number of columns and the new
-;   number of rows.
+  The function must take two arguments: the new number of columns and the new
+  number of rows.
 
-;   The listener itself will be returned.  You don't need to do anything with it,
-;   but you can use it to remove it later with remove-resize-listener.
+  The listener itself will be returned.  You don't need to do anything with it,
+  but you can use it to remove it later with remove-resize-listener.
 
-;   TODO: Add remove-resize-listener.
+  TODO: Add remove-resize-listener.
 
-;   "
-;   [screen listener-fn]
-;   (t/add-resize-listener (::terminal (meta screen))
-;                          listener-fn))
+  "
+  [screen listener-fn]
+  (t/add-resize-listener (.getTerminal screen)
+                         listener-fn))
+
