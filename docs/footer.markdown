@@ -10,7 +10,7 @@ Documentation created with [d](http://sjl.bitbucket.org/d/).
     t.type  = 'text/javascript';
     t.async = true;
     t.id    = 'gauges-tracker';
-    t.setAttribute('data-site-id', 'ID HERE');
+    t.setAttribute('data-site-id', '4f843f8c613f5d65280000e6');
     t.src = '//secure.gaug.es/track.js';
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(t, s);
