@@ -1,4 +1,4 @@
-(defproject clojure-lanterna "0.9.0"
+(defproject clojure-lanterna "0.9.1"
   :description "A Clojure wrapper around the Lanterna terminal output library."
   :url "http://sjl.bitbucket.org/clojure-lanterna/"
   :license {:name "LGPL"}
