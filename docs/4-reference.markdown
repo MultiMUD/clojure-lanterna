@@ -420,7 +420,7 @@ This is how you actually flush any changes to the user's display.
 ### lanterna.screen/move-cursor
 
     :::clojure
-    (move-cursor terminal x y)
+    (move-cursor screen x y)
 
 Move the cursor to a specific location on the screen.
 
