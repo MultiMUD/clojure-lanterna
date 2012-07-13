@@ -159,11 +159,17 @@ Getting input works exactly like the terminal layer:
 
 Go back and read the terminal docs if you don't understand those functions.
 
-Resizing
---------
+Sizing
+------
 
-Resizing works the same way as the terminal layer.  Pass a resize listening
-function when you create your screen:
+Sizing works the same way as the terminal layer.  Screen have a `get-size`
+function of their own:
+
+    :::clojure
+    (s/get-size scr)
+    ; => [130 44]
+
+You can pass a resize listening function when you create your screen:
 
     :::clojure
     (def screen-size (ref [0 0]))

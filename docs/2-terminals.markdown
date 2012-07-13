@@ -183,16 +183,24 @@ constants namespace (or just consult the reference documentation):
     ;     :delete :tab :insert :enter :left :page-up :page-down
     ;     :escape :reverse-tab :home :down :normal :up)
 
-Resizing
---------
+Sizing
+------
 
-The final piece of Lantera's terminal layer is the concept of resizing.
+The final piece of Lantera's terminal layer is the concept of terminal sizes.
 
 When writing a terminal application, you're at the mercy of the user when it
 comes to how big (or small) the window is going to be.
 
 Obviously in a console environment the user can resize their xterm window.
 Lanterna's Swing terminal emulator can be resized by dragging normally as well.
+
+First of all, you can get the size of the terminal at any time with `get-size`:
+
+    :::clojure
+    (t/get-size term)
+    ; => [80 24]
+
+But getting the size at a single point in time usually won't be enough.
 
 Your application needs to be able to handle resized windows.  To do this you can
 provide a function when you create the terminal.  This function will be called

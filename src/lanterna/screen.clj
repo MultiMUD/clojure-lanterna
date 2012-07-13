@@ -5,6 +5,23 @@
             [lanterna.terminal :as t]))
 
 
+(defn add-resize-listener
+  "Create a listener that will call the supplied fn when the screen is resized.
+
+  The function must take two arguments: the new number of columns and the new
+  number of rows.
+
+  The listener itself will be returned.  You don't need to do anything with it,
+  but you can use it to remove it later with remove-resize-listener.
+
+  TODO: Add remove-resize-listener.
+
+  "
+  [screen listener-fn]
+  (t/add-resize-listener (.getTerminal screen)
+                         listener-fn))
+
+
 (defn get-screen
   "Get a screen object.
 
@@ -81,6 +98,15 @@
        (finally (stop screen#)))))
 
 
+(defn get-size
+  "Return the current size of the screen as [cols rows]."
+  [screen]
+  (let [size (.getTerminalSize screen)
+        cols (.getColumns size)
+        rows (.getRows size)]
+    [cols rows]))
+
+
 (defn redraw
   "Draw the screen.
 
@@ -139,6 +165,17 @@
                  styles))))
 
 
+(defn clear
+  "Clear the screen.
+
+  Note that this is buffered like everything else, so you'll need to redraw
+  the screen to see the effect.
+
+  "
+  [screen]
+  (.clear screen))
+
+
 (defn get-key
   "Get the next keypress from the user, or nil if none are buffered.
 
@@ -173,47 +210,4 @@
         (recur screen))
       k)))
 
-
-; (defn get-keys-until
-;   "Get a series of keystrokes from the user, stopping when the sentinel is seen.
-
-;   For example, if this function is called like so:
-
-;     (get-keys-until screen :enter)
-
-;   And the user types:
-
-;     Hello world<enter>
-
-;   The following seq will be returned:
-
-;     (\\H \\e \\l \\l \\o \\space \\w \\o \\r \\l \\d)
-
-;   The sentinel is not included in the returned series.
-
-;   If echo is given and is truthy, they typed characters will be written to the
-;   screen starting at the current cursor position as they are read.  This can be
-;   useful if you're prompting the user for a string of input.
-
-;   "
-;   ([screen sentinel] (get-keys-until screen sentinel false))
-;   ([screen sentinel echo]
-;    (t/get-keys-until (::terminal (meta screen)) echo)))
-
-
-(defn add-resize-listener
-  "Create a listener that will call the supplied fn when the screen is resized.
-
-  The function must take two arguments: the new number of columns and the new
-  number of rows.
-
-  The listener itself will be returned.  You don't need to do anything with it,
-  but you can use it to remove it later with remove-resize-listener.
-
-  TODO: Add remove-resize-listener.
-
-  "
-  [screen listener-fn]
-  (t/add-resize-listener (.getTerminal screen)
-                         listener-fn))
 

@@ -102,6 +102,15 @@
        (finally (stop ~terminal)))))
 
 
+(defn get-size
+  "Return the current size of the terminal as [cols rows]."
+  [terminal]
+  (let [size (.getTerminalSize terminal)
+        cols (.getColumns size)
+        rows (.getRows size)]
+    [cols rows]))
+
+
 (defn move-cursor
   "Move the cursor to a specific location on the screen."
   [terminal x y]
@@ -136,6 +145,17 @@
   ([terminal s x y]
    (move-cursor terminal x y)
    (put-string terminal s)))
+
+
+(defn clear
+  "Clear the terminal.
+
+  The cursor will be at 0 0 afterwards.
+
+  "
+  [terminal]
+  (.clearScreen terminal)
+  (move-cursor terminal 0 0))
 
 
 (defn set-fg-color [terminal color]
@@ -195,41 +215,3 @@
         (Thread/sleep 50)
         (recur terminal))
       k)))
-
-(defn get-keys-until
-  "Don't use this yet.
-
-  Get a series of keystrokes from the user, stopping when the sentinel is seen.
-
-  For example, if this function is called like so:
-
-    (get-keys-until screen :enter)
-
-  And the user types:
-
-    Hello world<enter>
-
-  The following seq will be returned:
-
-    (\\H \\e \\l \\l \\o \\space \\w \\o \\r \\l \\d)
-
-  The sentinel is not included in the returned series.
-
-  If echo is given and is truthy, they typed characters will be written to the
-  screen starting at the current cursor position as they are read.  This can be
-  useful if you're prompting the user for a string of input.
-
-  "
-  ([terminal sentinel] (get-keys-until terminal sentinel false))
-  ([terminal sentinel echo]
-   (loop [k (get-key-blocking terminal)
-          ks []]
-     (if (= sentinel k)
-       ks
-       (do
-     (when echo
-       (put-character terminal k))
-     (recur (get-key-blocking terminal)
-            (conj ks k)))))))
-
-

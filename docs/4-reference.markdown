@@ -180,6 +180,13 @@ will actually happen.
 Use this if you don't need detailed control of the terminal starting and
 stopping process.
 
+### lanterna.terminal/get-size
+
+    :::clojure
+    (get-size terminal)
+
+Return the current size of the terminal as `[cols rows]`.
+
 ### lanterna.terminal/move-cursor
 
     :::clojure
@@ -219,6 +226,15 @@ The cursor will end up at the position directly after the string.
 Draw the string at the specified cursor location.
 
 The cursor will end up at the position directly after the string.
+
+### lanterna.terminal/clear
+
+    :::clojure
+    (clear terminal)
+
+Clear the given terminal.
+
+The cursor will be at the coordinates 0, 0 after the clearing.
 
 ### lanterna.terminal/set-fg-color
 
@@ -385,6 +401,13 @@ will actually happen.
 Use this if you don't need detailed control of the screen starting and stopping
 process.
 
+### lanterna.screen/get-size
+
+    :::clojure
+    (get-size screen)
+
+Return the current size of the screen as `[cols rows]`.
+
 ### lanterna.screen/redraw
 
     :::clojure
@@ -429,6 +452,16 @@ The `options` map can contain any of the following mappings:
   (default `:default`).
 * `:styles` - Styles to apply to the text.  Must be a set containing zero or
   more [style constants](#styles) (default `#{}`).  **CURRENTLY BROKEN, SORRY**
+
+### lanterna.screen/clear
+
+    :::clojure
+    (clear screen)
+
+Clear the given screen.
+
+Note that this is buffered just like every other screen-related action.  You
+need to [`redraw`](#lanternascreenredraw) to actually see it happen.
 
 ### lanterna.screen/get-key
 
