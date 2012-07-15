@@ -5,6 +5,9 @@
             [lanterna.terminal :as t]))
 
 
+(defn enumerate [s]
+  (map vector (iterate inc 0) s))
+
 (defn add-resize-listener
   "Create a listener that will call the supplied fn when the screen is resized.
 
@@ -164,6 +167,73 @@
                  (c/colors bg)
                  styles))))
 
+(defn put-sheet
+  "EXPERIMENTAL!  Turn back now!
+
+  Draw a sheet to the screen (buffered, of course).
+
+  A sheet is a two-dimentional sequence of things to print to the screen.  It
+  will be printed with its upper-left corner at the given x and y coordinates.
+
+  Sheets can take several forms.  The simplest sheet is a vector of strings:
+
+    (put-sheet scr 2 0 [\"foo\" \"bar\" \"hello!\"])
+
+  This would print something like
+
+     0123456789
+    0  foo
+    1  bar
+    2  hello!
+
+  As you can see, the rows of a sheet do not need to all be the same size.
+  Shorter rows will *not* be padded in any way.
+
+  Rows can also be sequences themselves, of characters or strings:
+
+    (put-sheet scr 5 0 [[\\s \\p \\a \\m] [\"e\" \"g\" \"g\" \"s\"]])
+
+     0123456789
+    0     spam
+    1     eggs
+
+  Finally, instead of single characters of strings, you can pass a vector of a
+  [char-or-string options-map], like so:
+
+    (put-sheet scr 1 0 [[[\\r {:fg :red}] [\\g {:fg :green}]]
+                        [[\\b {:fg :blue}]]])
+
+     0123456789
+    0 rg
+    1 b
+
+  And the letters would be colored appropriately.
+
+  Finally, you can mix and match any and all of these within a single sheet or
+  row:
+
+    (put-sheet scr 2 0 [\"foo\"
+                        [\"b\" \\a [\\r {:bg :yellow :fg :black}])
+
+  "
+  [screen x y sheet]
+  (letfn [(put-item [c r item]
+            (cond
+              (string? item) (put-string screen c r item)
+              (char? item)   (put-string screen c r (str item))
+              (vector? item) (let [[i opts] item]
+                               (if (char? i)
+                                 (put-string screen c r (str i) opts)
+                                 (put-string screen c r i opts)))
+              :else nil ; TODO: die loudly
+              ))
+          (put-row [r row]
+            (doseq [[c item] (enumerate row)]
+              (put-item (+ x c) r item)))]
+    (doseq [[i row] (enumerate sheet)]
+      (if (string? row)
+        (put-string screen x (+ y i) row)
+        (put-row (+ y i) row)))))
 
 (defn clear
   "Clear the screen.
@@ -211,3 +281,17 @@
       k)))
 
 
+(comment
+  (def s (get-screen))
+  (start s)
+
+  (put-sheet s 5 5 ["foo" "bar" "hello"])
+  (put-sheet s 5 9 [[\f \o \o] ["b" "a" "r"] "hello"])
+  (let [r [\r {:bg :red :fg :white}]
+        g [\g {:bg :green :fg :black}]
+        b [\b {:bg :blue :fg :white}]]
+    (put-sheet s 5 13 [[r r r] [g g g] [b b b]]))
+
+  (redraw s)
+  (stop s)
+  )

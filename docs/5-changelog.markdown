@@ -4,6 +4,13 @@ Changelog
 Here's the list of changes in each released version.
 
 
+v0.9.2
+------
+
+* Added an experimental `put-sheet` function for screens.  Don't rely on this
+  yet -- it's subject to change.
+* Relies on a stable release of Lanterna once more.
+
 v0.9.1
 ------
 
