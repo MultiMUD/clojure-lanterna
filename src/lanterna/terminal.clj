@@ -1,5 +1,6 @@
 (ns lanterna.terminal
-  (:import com.googlecode.lanterna.TerminalFacade
+  (:import java.awt.Font
+           com.googlecode.lanterna.TerminalFacade
            com.googlecode.lanterna.terminal.Terminal)
   (:use [lanterna.common :only [parse-key]])
   (:require [lanterna.constants :as c]))
@@ -73,7 +74,8 @@
          charset (c/charsets charset)
          terminal (case kind
                     :auto   (TerminalFacade/createTerminal charset)
-                    :swing  (TerminalFacade/createSwingTerminal cols rows)
+                    :swing  (TerminalFacade/createSwingTerminal
+                              (Font. "Monospaced" Font/PLAIN 14) cols rows)
                     :text   (TerminalFacade/createTextTerminal in out charset)
                     :unix   (TerminalFacade/createUnixTerminal in out charset)
                     :cygwin (TerminalFacade/createCygwinTerminal in out charset))]
