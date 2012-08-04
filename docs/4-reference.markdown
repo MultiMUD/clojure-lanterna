@@ -98,6 +98,28 @@ doing if you use anything other than `:auto`.
 * `:unix` - Force a UNIX text-based console.
 * `:cygwin` - Force a Cygwin text-based console.
 
+### Palettes
+
+When creating a Swing Terminal or Screen, you can choose the color palette to
+use.  Text-based Terminals and Screens will use the user's color scheme, of
+course.
+
+The following palettes are supported:
+
+* `:gnome` - Gnome Terminal's colors.
+* `:windows-xp` - The colors of the Windows XP command prompt.
+* `:xterm` - Xterm's colors.
+* `:putty` - Putty's colors.
+* `:mac-os-x` - The colors of Mac OS X's Terminal.app.
+
+### Font Names
+
+When giving a font name, it should be a string naming a font family on your
+system.  For example: `"Consolas"`, `"Courier New"`, or `"Monaco"`.
+
+To see a the fonts available on your system you can call
+[`get-available-fonts`](#lanternaterminalget-available-fonts).
+
 Terminals
 ---------
 
@@ -125,14 +147,16 @@ The `options` map can contain any of the following mappings:
 * `:resize-listener` - A function to call when the terminal is resized.  This
   function should take two parameters: the new number of columns, and the new
   number of rows.
+*
 
-The `:rows`, `:cols`, and `:charset` options are really just a suggestion!
+The `:rows`, `:cols`, `:font`, `:font-size`, `:palette` and `:charset` options
+are really just a suggestion!
 
-The text-based terminals will ignore rows and columns and will be the size of
-the user's window.
+The text-based terminals will ignore rows, columns, fonts and palettes.  They
+will be determined by the user's terminal window.
 
-The Swing terminal will start out at this size but can be resized later by the
-user, and will ignore the charset entirely.
+The Swing terminal will start out at the given size but can be resized later by
+the user, and will ignore the charset entirely.
 
 God only know what Cygwin will do.
 
@@ -318,6 +342,13 @@ number of rows.
 You probably don't need this because you can specify a resize listener function
 when you call [`get-terminal`](#lanternaterminalget-terminal).  It's here if you
 *do* need it though.
+
+### lanterna.terminal/get-available-fonts
+
+    :::clojure
+    (get-available-fonts)
+
+Return a set of strings of the names of available fonts on the current system.
 
 Screens
 -------

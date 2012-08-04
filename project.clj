@@ -4,5 +4,6 @@
   :license {:name "LGPL"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.googlecode.lanterna/lanterna "2.0.1"]]
+  :java-source-paths ["./java"]
   ; :repositories {"sonatype-snapshots" "https://oss.sonatype.org/content/repositories/snapshots"}
   )

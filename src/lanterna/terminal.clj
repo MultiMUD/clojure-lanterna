@@ -1,8 +1,14 @@
 (ns lanterna.terminal
   (:import com.googlecode.lanterna.TerminalFacade
-           com.googlecode.lanterna.terminal.Terminal)
+           com.googlecode.lanterna.terminal.Terminal
+           com.googlecode.lanterna.terminal.swing.SwingTerminal
+           com.googlecode.lanterna.terminal.swing.TerminalAppearance
+           com.googlecode.lanterna.terminal.swing.TerminalPalette
+           java.awt.GraphicsEnvironment
+           java.awt.Font)
   (:use [lanterna.common :only [parse-key]])
   (:require [lanterna.constants :as c]))
+
 
 
 (defn add-resize-listener
@@ -17,7 +23,7 @@
   TODO: Add remove-resize-listener.
 
   "
-  [terminal listener-fn]
+  [^Terminal terminal listener-fn]
   (let [listener (reify com.googlecode.lanterna.terminal.Terminal$ResizeListener
                    (onResized [this newSize]
                      (listener-fn (.getColumns newSize)
@@ -25,6 +31,30 @@
     (.addResizeListener terminal listener)
     listener))
 
+
+(defn get-available-fonts []
+  (set (.getAvailableFontFamilyNames
+         (GraphicsEnvironment/getLocalGraphicsEnvironment))))
+
+(defn- get-font-name [font]
+  (let [fonts (if (coll? font) font [font])
+        fonts (concat fonts ["Monospaced"])
+        available (get-available-fonts)]
+    (first (filter available fonts))))
+
+
+(defn- get-swing-terminal [cols rows
+                           {:as opts
+                            :keys [font font-size palette]
+                            :or {font ["Menlo" "Consolas" "Monospaced"]
+                                 font-size 14
+                                 palette :mac-os-x}}]
+  (let [font (get-font-name font)
+        appearance (new TerminalAppearance
+                        (new Font font Font/PLAIN font-size)
+                        (new Font font Font/BOLD font-size)
+                        (c/palettes palette) true)]
+    (new SwingTerminal appearance cols rows)))
 
 (defn get-terminal
   "Get a terminal object.
@@ -48,11 +78,17 @@
   :resize-listener - A function to call when the terminal is resized.  This
                      function should take two parameters: the new number of
                      columns, and the new number of rows.
+  :font      - Font to use.  String or sequence of strings.
+               Use (lanterna.terminal/get-available-fonts) to see your options.
+               Will fall back to a basic monospaced font if none of the given
+               names are available.
+  :font-size - Font size (default 14).
+  :palette   - Color palette to use. Can be any of
+               (keys lanterna.constants/palettes) (default :mac-os-x).
 
   NOTE: The options are really just a suggestion!
 
-  The console terminal will ignore rows and columns and will be the size of the
-  user's window.
+  The console terminal will ignore rows and columns and fonts and colors.
 
   The Swing terminal will start out at this size but can be resized later by the
   user, and will ignore the charset entirely.
@@ -73,7 +109,7 @@
          charset (c/charsets charset)
          terminal (case kind
                     :auto   (TerminalFacade/createTerminal charset)
-                    :swing  (TerminalFacade/createSwingTerminal cols rows)
+                    :swing  (get-swing-terminal cols rows opts)
                     :text   (TerminalFacade/createTextTerminal in out charset)
                     :unix   (TerminalFacade/createUnixTerminal in out charset)
                     :cygwin (TerminalFacade/createCygwinTerminal in out charset))]
@@ -84,12 +120,12 @@
 
 (defn start
   "Start the terminal.  Consider using in-terminal instead."
-  [terminal]
+  [^Terminal terminal]
   (.enterPrivateMode terminal))
 
 (defn stop
   "Stop the terminal.  Consider using in-terminal instead."
-  [terminal]
+  [^Terminal terminal]
   (.exitPrivateMode terminal))
 
 
@@ -104,7 +140,7 @@
 
 (defn get-size
   "Return the current size of the terminal as [cols rows]."
-  [terminal]
+  [^Terminal terminal]
   (let [size (.getTerminalSize terminal)
         cols (.getColumns size)
         rows (.getRows size)]
@@ -113,7 +149,7 @@
 
 (defn move-cursor
   "Move the cursor to a specific location on the screen."
-  [terminal x y]
+  [^Terminal terminal x y]
   (.moveCursor terminal x y))
 
 (defn put-character
@@ -125,9 +161,9 @@
   output next to each other.
 
   "
-  ([terminal ch]
+  ([^Terminal terminal ch]
    (.putCharacter terminal ch))
-  ([terminal ch x y]
+  ([^Terminal terminal ch x y]
    (move-cursor terminal x y)
    (put-character terminal ch)))
 
@@ -139,7 +175,7 @@
   The cursor will end up at the position directly after the string.
 
   "
-  ([terminal s]
+  ([^Terminal terminal s]
    (dorun (map (partial put-character terminal)
                s)))
   ([terminal s x y]
@@ -153,32 +189,32 @@
   The cursor will be at 0 0 afterwards.
 
   "
-  [terminal]
+  [^Terminal terminal]
   (.clearScreen terminal)
   (move-cursor terminal 0 0))
 
 
-(defn set-fg-color [terminal color]
+(defn set-fg-color [^Terminal terminal color]
   (.applyForegroundColor terminal (c/colors color)))
 
-(defn set-bg-color [terminal color]
+(defn set-bg-color [^Terminal terminal color]
   (.applyBackgroundColor terminal (c/colors color)))
 
 
 ; TODO: Fix these.
 (defn set-style
   "Borked.  Don't use this."
-  [terminal style]
+  [^Terminal terminal style]
   (.applySGR terminal (c/enter-styles style)))
 
 (defn remove-style
   "Borked.  Don't use this."
-  [terminal style]
+  [^Terminal terminal style]
   (.applySGR terminal (c/exit-styles style)))
 
 (defn reset-styles
   "Borked.  Don't use this."
-  [terminal]
+  [^Terminal terminal]
   (.applySGR terminal c/reset-style))
 
 
@@ -192,7 +228,7 @@
   want to wait for user input, use get-key-blocking instead.
 
   "
-  [terminal]
+  [^Terminal terminal]
   (parse-key (.readInput terminal)))
 
 (defn get-key-blocking
@@ -208,10 +244,25 @@
   TODO: Add a timeout option.
 
   "
-  [terminal]
+  [^Terminal terminal]
   (let [k (get-key terminal)]
     (if (nil? k)
       (do
         (Thread/sleep 50)
         (recur terminal))
       k)))
+
+
+(comment
+
+  (def t (get-terminal :swing
+                       {:cols 40 :rows 30
+                        :font ["Menlo"]
+                        :font-size 24
+                        :palette :gnome}))
+  (start t)
+  (set-fg-color t :yellow)
+  (put-string t "Hello, world!")
+  (stop t)
+
+  )

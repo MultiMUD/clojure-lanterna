@@ -4,6 +4,7 @@
            com.googlecode.lanterna.screen.Screen
            com.googlecode.lanterna.terminal.Terminal
            com.googlecode.lanterna.screen.ScreenCharacterStyle
+           com.googlecode.lanterna.terminal.swing.TerminalPalette
            com.googlecode.lanterna.input.Key))
 
 
@@ -46,6 +47,14 @@
    com.googlecode.lanterna.input.Key$Kind/Unknown :unknown
    com.googlecode.lanterna.input.Key$Kind/CursorLocation :cursor-location})
 
+
+(def palettes
+  {:gnome      TerminalPalette/GNOME_TERMINAL
+   :vga        TerminalPalette/STANDARD_VGA
+   :windows-xp TerminalPalette/WINDOWS_XP_COMMAND_PROMPT
+   :mac-os-x   TerminalPalette/MAC_OS_X_TERMINAL_APP
+   :xterm      TerminalPalette/PUTTY
+   :putty      TerminalPalette/XTERM})
 
 (def enter-styles
   {:bold com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BOLD

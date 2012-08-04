@@ -1,5 +1,6 @@
 (ns lanterna.screen
-  (:import com.googlecode.lanterna.screen.Screen)
+  (:import com.googlecode.lanterna.screen.Screen
+           com.googlecode.lanterna.terminal.Terminal)
   (:use [lanterna.common :only [parse-key]])
   (:require [lanterna.constants :as c]
             [lanterna.terminal :as t]))
@@ -20,7 +21,7 @@
   TODO: Add remove-resize-listener.
 
   "
-  [screen listener-fn]
+  [^Screen screen listener-fn]
   (t/add-resize-listener (.getTerminal screen)
                          listener-fn))
 
@@ -47,6 +48,8 @@
   :resize-listener - A function to call when the screen is resized.  This
                      function should take two parameters: the new number of
                      columns, and the new number of rows.
+  :font      - A string containing the name of the font to use.
+  :font-size - An int of the size of the font to use.
 
   NOTE: The options are really just a suggestion!
 
@@ -76,7 +79,7 @@
   This must be called before you do anything else to the screen.
 
   "
-  [screen]
+  [^Screen screen]
   (.startScreen screen))
 
 (defn stop
@@ -88,7 +91,7 @@
   TODO: Figure out if it's safe to start, stop, and then restart a screen.
 
   "
-  [screen]
+  [^Screen screen]
   (.stopScreen screen))
 
 
@@ -103,7 +106,7 @@
 
 (defn get-size
   "Return the current size of the screen as [cols rows]."
-  [screen]
+  [^Screen screen]
   (let [size (.getTerminalSize screen)
         cols (.getColumns size)
         rows (.getRows size)]
@@ -117,7 +120,7 @@
   need to call this for any of your changes to actually show up.
 
   "
-  [screen]
+  [^Screen screen]
   (.refresh screen))
 
 
@@ -131,7 +134,7 @@
   appears in a specific place.
 
   "
-  [screen x y]
+  [^Screen screen x y]
   (.setCursorPosition screen x y))
 
 (defn put-string
@@ -155,17 +158,18 @@
   (default #{})
 
   "
-  ([screen x y s] (put-string screen x y s {}))
-  ([screen x y s {:as opts
-                  :keys [fg bg styles]
-                  :or {fg :default
-                       bg :default
-                       styles #{}}}]
-   (let [styles (set (map c/styles styles))]
-     (.putString screen x y s
-                 (c/colors fg)
-                 (c/colors bg)
-                 styles))))
+  ([^Screen screen x y s] (put-string screen x y s {}))
+  ([^Screen screen x y ^String s {:as opts
+                                  :keys [fg bg styles]
+                                  :or {fg :default
+                                       bg :default
+                                       styles #{}}}]
+   (let [styles ^clojure.lang.PersistentHashSet (set (map c/styles styles))
+         x (int x)
+         y (int y)
+         fg ^com.googlecode.lanterna.terminal.Terminal$Color (c/colors fg)
+         bg ^com.googlecode.lanterna.terminal.Terminal$Color (c/colors bg)]
+     (.putString screen x y s fg bg styles))))
 
 (defn put-sheet
   "EXPERIMENTAL!  Turn back now!
@@ -242,7 +246,7 @@
   the screen to see the effect.
 
   "
-  [screen]
+  [^Screen screen]
   (.clear screen))
 
 
@@ -256,7 +260,7 @@
   want to wait for user input, use get-key-blocking instead.
 
   "
-  [screen]
+  [^Screen screen]
   (parse-key (.readInput screen)))
 
 (defn get-key-blocking
@@ -272,7 +276,7 @@
   TODO: Add a timeout option.
 
   "
-  [screen]
+  [^Screen screen]
   (let [k (get-key screen)]
     (if (nil? k)
       (do
