@@ -58,13 +58,13 @@ Okay, fine:
 
     (def scr (s/get-screen))
 
-    (s/stop screen)
+    (s/stop scr)
 
     (s/put-string scr 10 10 "Hello, world!")
     (s/put-string scr 10 11 "Press any key to exit!")
-    (s/get-key-blocking)
+    (s/get-key-blocking scr)
 
-    (s/stop screen)
+    (s/stop scr)
 
 But really, please read the docs if you actually want to use this.  They're not
 that long.
