@@ -147,7 +147,10 @@ The `options` map can contain any of the following mappings:
 * `:resize-listener` - A function to call when the terminal is resized.  This
   function should take two parameters: the new number of columns, and the new
   number of rows.
-*
+* `:font` - A single [font name](#font-names) or sequence of [font
+  names](#font-names).  If a sequence is given, the first font that exists on
+  the system will be used (much like a CSS `font-family` declaration).
+  Will fall back to a monospaced default font if none of the given ones exist.
 
 The `:rows`, `:cols`, `:font`, `:font-size`, `:palette` and `:charset` options
 are really just a suggestion!
@@ -377,6 +380,10 @@ The `options` map can contain any of the following mappings:
 * `:resize-listener` - A function to call when the screen is resized.  This
   function should take two parameters: the new number of columns, and the new
   number of rows.
+* `:font` - A single [font name](#font-names) or sequence of [font
+  names](#font-names).  If a sequence is given, the first font that exists on
+  the system will be used (much like a CSS `font-family` declaration).
+  Will fall back to a monospaced default font if none of the given ones exist.
 
 The `:rows`, `:cols`, and `:charset` options are really just a suggestion!
 

@@ -48,7 +48,10 @@
   :resize-listener - A function to call when the screen is resized.  This
                      function should take two parameters: the new number of
                      columns, and the new number of rows.
-  :font      - A string containing the name of the font to use.
+  :font      - Font to use.  String or sequence of strings.
+               Use (lanterna.terminal/get-available-fonts) to see your options.
+               Will fall back to a basic monospaced font if none of the given
+               names are available.
   :font-size - An int of the size of the font to use.
 
   NOTE: The options are really just a suggestion!
