@@ -242,10 +242,11 @@
   If the user has *not* pressed a key, this function will block, checking every
   50ms.  If you want to return nil immediately, use get-key instead.
 
-  Optionally accepts :interval and :timeout &rest keyword arguments.
-    :interval sets the interval between checks.
-    :timeout sets the maximum amount of time blocking will occur before
-    returning nil.
+  Options can include any of the following keys:
+
+  :interval - sets the interval between checks
+  :timeout  - sets the maximum amount of time blocking will occur before
+              returning nil
 
   "
   ([^Terminal terminal] (get-key-blocking terminal {}))

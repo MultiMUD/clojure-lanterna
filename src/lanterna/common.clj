@@ -13,10 +13,11 @@
 (defn block-on
   "Repeatedly apply func to args until a non-nil value is returned.
 
-  opts is a map optionally containing an :interval and a :timeout in msecs.
-    :interval sets the interval between function applications (default 50).
-    :timeout sets the maximum amount of time blocking will occur before
-    returning nil.
+  Options can include any of the following keys:
+
+  :interval - sets the interval between function applications (default 50)
+  :timeout  - sets the maximum amount of time blocking will occur before
+              returning nil
 
   "
   ([func args] (block-on func args {}))
