@@ -1,7 +1,7 @@
 (ns lanterna.screen
   (:import com.googlecode.lanterna.screen.Screen
            com.googlecode.lanterna.terminal.Terminal)
-  (:use [lanterna.common :only [parse-key]])
+  (:use [lanterna.common :only [parse-key block-on]])
   (:require [lanterna.constants :as c]
             [lanterna.terminal :as t]))
 
@@ -275,17 +275,14 @@
   If the user has *not* pressed a key, this function will block, checking every
   50ms.  If you want to return nil immediately, use get-key instead.
 
-  TODO: Make the interval configurable.
-  TODO: Add a timeout option.
+  Optionally accepts :interval and :timeout &rest keyword arguments.
+    :interval sets the interval between checks.
+    :timeout sets the maximum amount of time blocking will occur before
+    returning nil.
 
   "
-  [^Screen screen]
-  (let [k (get-key screen)]
-    (if (nil? k)
-      (do
-        (Thread/sleep 50)
-        (recur screen))
-      k)))
+  [^Screen screen & {:keys [interval timeout] :as opts}]
+  (block-on get-key [screen] opts))
 
 
 (comment
