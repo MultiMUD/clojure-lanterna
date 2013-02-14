@@ -26,7 +26,7 @@
                :or {interval 50
                     timeout Double/POSITIVE_INFINITY}}]
      (loop [timeout timeout]
-       (when (> timeout 0)
+       (when (pos? timeout)
          (let [val (apply func args)]
            (if (nil? val)
              (do (Thread/sleep interval)
