@@ -6,7 +6,7 @@
            com.googlecode.lanterna.terminal.swing.TerminalPalette
            java.awt.GraphicsEnvironment
            java.awt.Font)
-  (:use [lanterna.common :only [parse-key]])
+  (:use [lanterna.common :only [parse-key block-on]])
   (:require [lanterna.constants :as c]))
 
 
@@ -20,8 +20,6 @@
   The listener itself will be returned.  You don't need to do anything with it,
   but you can use it to remove it later with remove-resize-listener.
 
-  TODO: Add remove-resize-listener.
-
   "
   [^Terminal terminal listener-fn]
   (let [listener (reify com.googlecode.lanterna.terminal.Terminal$ResizeListener
@@ -31,6 +29,10 @@
     (.addResizeListener terminal listener)
     listener))
 
+(defn remove-resize-listener
+  "Remove a resize listener from the given terminal."
+  [^Terminal terminal listener]
+  (.removeResizeListener terminal listener))
 
 (defn get-available-fonts []
   (set (.getAvailableFontFamilyNames
@@ -240,17 +242,16 @@
   If the user has *not* pressed a key, this function will block, checking every
   50ms.  If you want to return nil immediately, use get-key instead.
 
-  TODO: Make the interval configurable.
-  TODO: Add a timeout option.
+  Options can include any of the following keys:
+
+  :interval - sets the interval between checks
+  :timeout  - sets the maximum amount of time blocking will occur before
+              returning nil
 
   "
-  [^Terminal terminal]
-  (let [k (get-key terminal)]
-    (if (nil? k)
-      (do
-        (Thread/sleep 50)
-        (recur terminal))
-      k)))
+  ([^Terminal terminal] (get-key-blocking terminal {}))
+  ([^Terminal terminal {:keys [interval timeout] :as opts}]
+     (block-on get-key [terminal] opts)))
 
 
 (comment
@@ -263,6 +264,8 @@
   (start t)
   (set-fg-color t :yellow)
   (put-string t "Hello, world!")
+  (get-key-blocking t {:timeout 1000})
+  (get-key-blocking t {:interval 2000})
   (stop t)
 
   )

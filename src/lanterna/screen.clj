@@ -1,7 +1,7 @@
 (ns lanterna.screen
   (:import com.googlecode.lanterna.screen.Screen
            com.googlecode.lanterna.terminal.Terminal)
-  (:use [lanterna.common :only [parse-key]])
+  (:use [lanterna.common :only [parse-key block-on]])
   (:require [lanterna.constants :as c]
             [lanterna.terminal :as t]))
 
@@ -18,13 +18,15 @@
   The listener itself will be returned.  You don't need to do anything with it,
   but you can use it to remove it later with remove-resize-listener.
 
-  TODO: Add remove-resize-listener.
-
   "
   [^Screen screen listener-fn]
   (t/add-resize-listener (.getTerminal screen)
                          listener-fn))
 
+(defn remove-resize-listener
+  "Remove a resize listener from the given screen."
+  [^Screen screen listener]
+  (t/remove-resize-listener (.getTerminal screen) listener))
 
 (defn get-screen
   "Get a screen object.
@@ -275,17 +277,16 @@
   If the user has *not* pressed a key, this function will block, checking every
   50ms.  If you want to return nil immediately, use get-key instead.
 
-  TODO: Make the interval configurable.
-  TODO: Add a timeout option.
+  Options can include any of the following keys:
+
+  :interval - sets the interval between checks
+  :timeout  - sets the maximum amount of time blocking will occur before
+              returning nil
 
   "
-  [^Screen screen]
-  (let [k (get-key screen)]
-    (if (nil? k)
-      (do
-        (Thread/sleep 50)
-        (recur screen))
-      k)))
+  ([^Screen screen] (get-key-blocking screen {}))
+  ([^Screen screen & {:keys [interval timeout] :as opts}]
+     (block-on get-key [screen] opts)))
 
 
 (comment
