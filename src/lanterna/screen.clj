@@ -281,8 +281,9 @@
     returning nil.
 
   "
-  [^Screen screen & {:keys [interval timeout] :as opts}]
-  (block-on get-key [screen] opts))
+  ([^Screen screen] (get-key-blocking screen {}))
+  ([^Screen screen & {:keys [interval timeout] :as opts}]
+     (block-on get-key [screen] opts)))
 
 
 (comment

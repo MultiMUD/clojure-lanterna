@@ -246,8 +246,9 @@
     returning nil.
 
   "
-  [^Terminal terminal & {:keys [interval timeout] :as opts}]
-  (block-on get-key [terminal] opts))
+  ([^Terminal terminal] (get-key-blocking terminal {}))
+  ([^Terminal terminal {:keys [interval timeout] :as opts}]
+     (block-on get-key [terminal] opts)))
 
 
 (comment
@@ -260,8 +261,8 @@
   (start t)
   (set-fg-color t :yellow)
   (put-string t "Hello, world!")
-  (get-key-blocking t :timeout 1000)
-  (get-key-blocking t :interval 2000)
+  (get-key-blocking t {:timeout 1000})
+  (get-key-blocking t {:interval 2000})
   (stop t)
 
   )

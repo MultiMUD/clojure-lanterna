@@ -164,10 +164,10 @@ one if there's none already buffered) you can use `get-key-blocking`:
     ;
     ; => \a
 
-`get-key-blocking` optionally accepts a check interval or timeout:
+`get-key-blocking` optionally accepts a check interval and/or timeout:
 
     :::clojure
-    (t/get-key-blocking term :interval 100 :timeout 5000)
+    (t/get-key-blocking term {:interval 100 :timeout 5000})
     ;
     ; Key presses will be checked for every 100 msecs. If you wait
     ; 5 seconds, nil will be returned.
