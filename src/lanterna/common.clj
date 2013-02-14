@@ -19,14 +19,15 @@
     returning nil.
 
   "
-  [func args {:keys [interval timeout] :as opts}]
-  (let [{:keys [interval timeout]} (merge {:interval 50
-                                           :timeout Double/POSITIVE_INFINITY}
-                                          opts)]
-    (loop [timeout timeout]
-      (when (> timeout 0)
-        (let [val (apply func args)]
-          (if (nil? val)
-            (do (Thread/sleep interval)
-                (recur (- timeout interval)))
-            val))))))
+  ([func args] (block-on func args {}))
+  ([func args {:as opts
+               :keys [interval timeout]
+               :or {interval 50
+                    timeout Double/POSITIVE_INFINITY}}]
+     (loop [timeout timeout]
+       (when (> timeout 0)
+         (let [val (apply func args)]
+           (if (nil? val)
+             (do (Thread/sleep interval)
+                 (recur (- timeout interval)))
+             val))))))
