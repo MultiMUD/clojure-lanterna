@@ -18,13 +18,15 @@
   The listener itself will be returned.  You don't need to do anything with it,
   but you can use it to remove it later with remove-resize-listener.
 
-  TODO: Add remove-resize-listener.
-
   "
   [^Screen screen listener-fn]
   (t/add-resize-listener (.getTerminal screen)
                          listener-fn))
 
+(defn remove-resize-listener
+  "Remove a resize listener from the given screen."
+  [^Screen screen listener]
+  (t/remove-resize-listener (.getTerminal screen) listener))
 
 (defn get-screen
   "Get a screen object.

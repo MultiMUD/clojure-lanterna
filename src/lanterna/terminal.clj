@@ -20,8 +20,6 @@
   The listener itself will be returned.  You don't need to do anything with it,
   but you can use it to remove it later with remove-resize-listener.
 
-  TODO: Add remove-resize-listener.
-
   "
   [^Terminal terminal listener-fn]
   (let [listener (reify com.googlecode.lanterna.terminal.Terminal$ResizeListener
@@ -31,6 +29,10 @@
     (.addResizeListener terminal listener)
     listener))
 
+(defn remove-resize-listener
+  "Remove a resize listener from the given terminal."
+  [^Terminal terminal listener]
+  (.removeResizeListener terminal listener))
 
 (defn get-available-fonts []
   (set (.getAvailableFontFamilyNames
