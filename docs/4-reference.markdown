@@ -317,6 +317,7 @@ If you want to wait for user input, use
 
     :::clojure
     (get-key-blocking terminal)
+    (get-key-blocking terminal options)
 
 Get the next keypress from the user.
 
@@ -330,6 +331,12 @@ off and returned as normal.
 
 If you want to return immediately instead of blocking when no input is buffered,
 use [`get-key`](#lanternaterminalget-key) instead.
+
+The `options` map can contain any of the following mappings:
+
+* `:interval` - The interval between checks, in milliseconds (default `50`).
+* `:timeout` - The maximum amount of time blocking will occur before returning
+  `nil` (default infinity).
 
 ### lanterna.terminal/add-resize-listener
 
@@ -345,6 +352,13 @@ number of rows.
 You probably don't need this because you can specify a resize listener function
 when you call [`get-terminal`](#lanternaterminalget-terminal).  It's here if you
 *do* need it though.
+
+### lanterna.terminal/remove-resize-listener
+
+    :::clojure
+    (remove-resize-listener terminal listener)
+
+Remove the given resize listener from the given terminal.
 
 ### lanterna.terminal/get-available-fonts
 
@@ -535,6 +549,12 @@ off and returned as normal.
 If you want to return immediately instead of blocking when no input is buffered,
 use [`get-key`](#lanternascreenget-key) instead.
 
+The `options` map can contain any of the following mappings:
+
+* `:interval` - The interval between checks, in milliseconds (default `50`).
+* `:timeout` - The maximum amount of time blocking will occur before returning
+  `nil` (default infinity).
+
 ### lanterna.screen/add-resize-listener
 
     :::clojure
@@ -550,3 +570,9 @@ You probably don't need this because you can specify a resize listener function
 when you call [`get-screen`](#lanternascreenget-screen).  It's here if you *do*
 need it though.
 
+### lanterna.screen/remove-resize-listener
+
+    :::clojure
+    (remove-resize-listener screen listener)
+
+Remove the given resize listener from the given screen.

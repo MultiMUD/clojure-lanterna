@@ -3,6 +3,10 @@ Changelog
 
 Here's the list of changes in each released version.
 
+v0.9.3
+------
+* `get-key-blocking` now accepts optional arguments for timeout and interval.
+* Added `remove-resize-listener` functions for Screens and Terminals.
 
 v0.9.2
 ------

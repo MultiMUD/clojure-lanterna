@@ -285,7 +285,7 @@
 
   "
   ([^Screen screen] (get-key-blocking screen {}))
-  ([^Screen screen & {:keys [interval timeout] :as opts}]
+  ([^Screen screen {:keys [interval timeout] :as opts}]
      (block-on get-key [screen] opts)))
 
 
