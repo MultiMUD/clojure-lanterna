@@ -3,8 +3,14 @@ Changelog
 
 Here's the list of changes in each released version.
 
+v0.9.4
+------
+
+* Relies on Lanterna `2.1.5` to get some bugfixes.
+
 v0.9.3
 ------
+
 * `get-key-blocking` now accepts optional arguments for timeout and interval.
 * Added `remove-resize-listener` functions for Screens and Terminals.
 
