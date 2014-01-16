@@ -195,13 +195,15 @@
   (.clearScreen terminal)
   (move-cursor terminal 0 0))
 
-
 (defn set-fg-color [^Terminal terminal color]
-  (.applyForegroundColor terminal (c/colors color)))
+  (cond (integer? color) (.applyForegroundColor terminal color)
+        (keyword? color) (.applyForegroundColor terminal (c/colors color))
+        :else (let [[r g b] color] (.applyForegroundColor terminal r g b))))
 
 (defn set-bg-color [^Terminal terminal color]
-  (.applyBackgroundColor terminal (c/colors color)))
-
+  (cond (integer? color) (.applyBackgroundColor terminal color)
+        (keyword? color) (.applyBackgroundColor terminal (c/colors color))
+        :else (let [[r g b] color] (.applyBackgroundColor terminal r g b))))
 
 ; TODO: Fix these.
 (defn set-style
