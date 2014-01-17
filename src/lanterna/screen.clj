@@ -1,6 +1,7 @@
 (ns lanterna.screen
   (:import com.googlecode.lanterna.screen.Screen
-           com.googlecode.lanterna.terminal.Terminal)
+           com.googlecode.lanterna.terminal.Terminal
+           com.googlecode.lanterna.terminal.TextColor)
   (:use [lanterna.common :only [parse-key block-on]])
   (:require [lanterna.constants :as c]
             [lanterna.terminal :as t]))
@@ -142,6 +143,10 @@
   [^Screen screen x y]
   (.setCursorPosition screen x y))
 
+(defn get-color [color]
+  (cond (keyword? color) ^com.googlecode.lanterna.terminal.TextColor$ANSI (c/colors color)
+        (vector? color) (let [[r g b] color] (com.googlecode.lanterna.terminal.TextColor$RGB. r g b))))
+
 (defn put-string
   "Put a string on the screen buffer, ready to be drawn at the next redraw.
 
@@ -172,8 +177,8 @@
    (let [styles ^clojure.lang.PersistentHashSet (set (map c/styles styles))
          x (int x)
          y (int y)
-         fg ^com.googlecode.lanterna.terminal.Terminal$Color (c/colors fg)
-         bg ^com.googlecode.lanterna.terminal.Terminal$Color (c/colors bg)]
+         fg (get-color fg)
+         bg (get-color bg)]
      (.putString screen x y s fg bg styles))))
 
 (defn put-sheet

@@ -3,6 +3,7 @@
            com.googlecode.lanterna.TerminalFacade
            com.googlecode.lanterna.screen.Screen
            com.googlecode.lanterna.terminal.Terminal
+           com.googlecode.lanterna.terminal.TextColor
            com.googlecode.lanterna.screen.ScreenCharacterStyle
            com.googlecode.lanterna.terminal.swing.TerminalPalette
            com.googlecode.lanterna.input.Key))
@@ -11,15 +12,15 @@
 (def charsets {:utf-8 (Charset/forName "UTF-8")})
 
 (def colors
-  {:black   com.googlecode.lanterna.terminal.Terminal$Color/BLACK
-   :white   com.googlecode.lanterna.terminal.Terminal$Color/WHITE
-   :red     com.googlecode.lanterna.terminal.Terminal$Color/RED
-   :green   com.googlecode.lanterna.terminal.Terminal$Color/GREEN
-   :blue    com.googlecode.lanterna.terminal.Terminal$Color/BLUE
-   :cyan    com.googlecode.lanterna.terminal.Terminal$Color/CYAN
-   :magenta com.googlecode.lanterna.terminal.Terminal$Color/MAGENTA
-   :yellow  com.googlecode.lanterna.terminal.Terminal$Color/YELLOW
-   :default com.googlecode.lanterna.terminal.Terminal$Color/DEFAULT})
+  {:black   com.googlecode.lanterna.terminal.TextColor$ANSI/BLACK
+   :white   com.googlecode.lanterna.terminal.TextColor$ANSI/WHITE
+   :red     com.googlecode.lanterna.terminal.TextColor$ANSI/RED
+   :green   com.googlecode.lanterna.terminal.TextColor$ANSI/GREEN
+   :blue    com.googlecode.lanterna.terminal.TextColor$ANSI/BLUE
+   :cyan    com.googlecode.lanterna.terminal.TextColor$ANSI/CYAN
+   :magenta com.googlecode.lanterna.terminal.TextColor$ANSI/MAGENTA
+   :yellow  com.googlecode.lanterna.terminal.TextColor$ANSI/YELLOW
+   :default com.googlecode.lanterna.terminal.TextColor$ANSI/DEFAULT})
 
 (def styles
   {:bold ScreenCharacterStyle/Bold

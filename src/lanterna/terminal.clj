@@ -198,12 +198,14 @@
 (defn set-fg-color [^Terminal terminal color]
   (cond (integer? color) (.applyForegroundColor terminal color)
         (keyword? color) (.applyForegroundColor terminal (c/colors color))
-        :else (let [[r g b] color] (.applyForegroundColor terminal r g b))))
+        (vector? color) (let [[r g b] color] (.applyForegroundColor terminal r g b))
+        :else nil))
 
 (defn set-bg-color [^Terminal terminal color]
   (cond (integer? color) (.applyBackgroundColor terminal color)
         (keyword? color) (.applyBackgroundColor terminal (c/colors color))
-        :else (let [[r g b] color] (.applyBackgroundColor terminal r g b))))
+        (vector? color) (let [[r g b] color] (.applyBackgroundColor terminal r g b))
+        :else nil))
 
 ; TODO: Fix these.
 (defn set-style
