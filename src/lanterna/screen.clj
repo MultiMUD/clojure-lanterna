@@ -139,8 +139,20 @@
   appears in a specific place.
 
   "
-  [^Screen screen x y]
-  (.setCursorPosition screen x y))
+  ([^Screen screen x y]
+     (.setCursorPosition screen x y))
+  ([^Screen screen pos]
+     (apply #(.setCursorPosition screen %1 %2) pos)))
+
+
+(defn get-cursor
+  "Return the cursor position as [col row]."
+  [^Screen screen]
+  (let [pos (.getCursorPosition screen)
+        col (.getColumn pos)
+        row (.getRow pos)]
+    [col row]))
+
 
 (defn put-string
   "Put a string on the screen buffer, ready to be drawn at the next redraw.
