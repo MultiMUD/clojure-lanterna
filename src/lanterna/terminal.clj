@@ -219,6 +219,14 @@
   [^Terminal terminal]
   (.applySGR terminal c/reset-style))
 
+(defn get-key-with-modifiers
+  "Get the next keypress from the user, returns a map of values:
+   {:key <same value as get-key> :ctrl true/false :alt true/false}"
+  [^Terminal terminal]
+  (let [key (.readInput terminal)]
+    (if (= key nil)
+      key
+      {:key (parse-key key) :ctrl (.isCtrlPressed key) :alt (.isAltPressed key)})))
 
 (defn get-key
   "Get the next keypress from the user, or nil if none are buffered.
@@ -231,7 +239,7 @@
 
   "
   [^Terminal terminal]
-  (parse-key (.readInput terminal)))
+  (:key (get-key-with-modifiers)))
 
 (defn get-key-blocking
   "Get the next keypress from the user.
@@ -252,6 +260,26 @@
   ([^Terminal terminal] (get-key-blocking terminal {}))
   ([^Terminal terminal {:keys [interval timeout] :as opts}]
      (block-on get-key [terminal] opts)))
+
+(defn get-key-blocking-with-modifiers
+  "Get the next keypress from the user.
+
+  If the user has pressed a key, that key will be returned (and popped off the
+  buffer of input).
+
+  If the user has *not* pressed a key, this function will block, checking every
+  50ms.  If you want to return nil immediately, use get-key instead.
+
+  Options can include any of the following keys:
+
+  :interval - sets the interval between checks
+  :timeout  - sets the maximum amount of time blocking will occur before
+              returning nil
+  returns {:key <same value as get-key> :ctrl true/false :alt true/false}
+  "
+  ([^Terminal terminal] (get-key-blocking-with-modifiers terminal {}))
+  ([^Terminal terminal {:keys [interval timeout] :as opts}]
+     (block-on get-key-with-modifiers [terminal] opts)))
 
 
 (comment
