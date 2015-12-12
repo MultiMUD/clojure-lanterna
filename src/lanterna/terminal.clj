@@ -202,22 +202,20 @@
 (defn set-bg-color [^Terminal terminal color]
   (.applyBackgroundColor terminal (c/colors color)))
 
-
-; TODO: Fix these.
 (defn set-style
-  "Borked.  Don't use this."
+  "Enter a style"
   [^Terminal terminal style]
-  (.applySGR terminal (c/enter-styles style)))
+  (.applySGR terminal (into-array com.googlecode.lanterna.terminal.Terminal$SGR [(c/enter-styles style)])))
 
 (defn remove-style
-  "Borked.  Don't use this."
+  "Exit a style"
   [^Terminal terminal style]
-  (.applySGR terminal (c/exit-styles style)))
+  (.applySGR terminal (into-array com.googlecode.lanterna.terminal.Terminal$SGR [(c/exit-styles style)])))
 
 (defn reset-styles
-  "Borked.  Don't use this."
+  "Reset all styles"
   [^Terminal terminal]
-  (.applySGR terminal c/reset-style))
+  (.applySGR terminal (into-array com.googlecode.lanterna.terminal.Terminal$SGR [c/reset-style])))
 
 
 (defn get-key
