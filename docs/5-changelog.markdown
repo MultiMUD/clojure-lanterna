@@ -3,6 +3,12 @@ Changelog
 
 Here's the list of changes in each released version.
 
+v0.9.5
+------
+
+* Relies on Lanterna `2.1.7` to get some bugfixes.
+* Fixes the style setting functions.
+
 v0.9.4
 ------
 
