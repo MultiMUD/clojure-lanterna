@@ -129,6 +129,15 @@
   (.refresh screen))
 
 
+(defn get-cursor-position
+  "Return the current cursor position on the screen as [col row]"
+  [^Screen screen]
+  (let [pos (.getCursorPosition screen)
+        col (.getColumn pos)
+        row (.getRow pos)]
+      [col row]))
+
+
 (defn move-cursor
   "Move the cursor to a specific location on the screen.
 
@@ -234,8 +243,8 @@
                                (if (char? i)
                                  (put-string screen c r (str i) opts)
                                  (put-string screen c r i opts)))
-              :else nil ; TODO: die loudly
-              ))
+              :else nil)) ; TODO: die loudly
+
           (put-row [r row]
             (doseq [[c item] (enumerate row)]
               (put-item (+ x c) r item)))]
@@ -301,5 +310,4 @@
     (put-sheet s 5 13 [[r r r] [g g g] [b b b]]))
 
   (redraw s)
-  (stop s)
-  )
+  (stop s))

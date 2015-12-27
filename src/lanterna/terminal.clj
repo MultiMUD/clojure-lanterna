@@ -148,6 +148,13 @@
         rows (.getRows size)]
     [cols rows]))
 
+(defn get-cursor-position
+  "Return the current cursor position on the terminal as [col row]"
+  [^Terminal terminal]
+  (let [pos (.getCursorPosition terminal)
+        col (.getColumn pos)
+        row (.getRow pos)
+          [col row]]))
 
 (defn move-cursor
   "Move the cursor to a specific location on the screen."
@@ -249,7 +256,7 @@
   "
   ([^Terminal terminal] (get-key-blocking terminal {}))
   ([^Terminal terminal {:keys [interval timeout] :as opts}]
-     (block-on get-key [terminal] opts)))
+   (block-on get-key [terminal] opts)))
 
 
 (comment
@@ -264,6 +271,4 @@
   (put-string t "Hello, world!")
   (get-key-blocking t {:timeout 1000})
   (get-key-blocking t {:interval 2000})
-  (stop t)
-
-  )
+  (stop t))
