@@ -1,15 +1,16 @@
 (ns lanterna.terminal
-  (:import com.googlecode.lanterna.TerminalFacade
-           com.googlecode.lanterna.terminal.Terminal
+  (:import com.googlecode.lanterna.terminal.Terminal
+           com.googlecode.lanterna.TerminalSize
            com.googlecode.lanterna.terminal.swing.SwingTerminal
-           com.googlecode.lanterna.terminal.swing.TerminalAppearance
-           com.googlecode.lanterna.terminal.swing.TerminalPalette
+           com.googlecode.lanterna.terminal.swing.SwingTerminalDeviceConfiguration
+           com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration
+           com.googlecode.lanterna.terminal.swing.SwingTerminalColorConfiguration
+           com.googlecode.lanterna.terminal.DefaultTerminalFactory
+           com.googlecode.lanterna.TextCharacter
            java.awt.GraphicsEnvironment
            java.awt.Font)
   (:use [lanterna.common :only [parse-key block-on]])
   (:require [lanterna.constants :as c]))
-
-
 
 (defn add-resize-listener
   "Create a listener that will call the supplied fn when the terminal is resized.
@@ -22,8 +23,8 @@
 
   "
   [^Terminal terminal listener-fn]
-  (let [listener (reify com.googlecode.lanterna.terminal.Terminal$ResizeListener
-                   (onResized [this newSize]
+  (let [listener (reify com.googlecode.lanterna.terminal.ResizeListener
+                   (onResized [this _ newSize]
                      (listener-fn (.getColumns newSize)
                                   (.getRows newSize))))]
     (.addResizeListener terminal listener)
@@ -52,11 +53,11 @@
                                  font-size 14
                                  palette :mac-os-x}}]
   (let [font (get-font-name font)
-        appearance (new TerminalAppearance
-                        (new Font font Font/PLAIN font-size)
-                        (new Font font Font/BOLD font-size)
-                        (c/palettes palette) true)]
-    (new SwingTerminal appearance cols rows)))
+        size (new TerminalSize cols rows)]
+    (new SwingTerminal size
+                       (new SwingTerminalDeviceConfiguration)
+                       (SwingTerminalFontConfiguration/newInstance font)
+                       (SwingTerminalColorConfiguration/newInstance (c/palettes palette)))))
 
 (defn get-terminal
   "Get a terminal object.
@@ -109,16 +110,13 @@
    (let [in System/in
          out System/out
          charset (c/charsets charset)
+         factory (new DefaultTerminalFactory out in charset)
          terminal (case kind
-                    :auto   (TerminalFacade/createTerminal charset)
-                    :swing  (get-swing-terminal cols rows opts)
-                    :text   (TerminalFacade/createTextTerminal in out charset)
-                    :unix   (TerminalFacade/createUnixTerminal in out charset)
-                    :cygwin (TerminalFacade/createCygwinTerminal in out charset))]
+                    :auto   (.createTerminal factory)
+                    :swing  (get-swing-terminal cols rows opts))]
      (when resize-listener
        (add-resize-listener terminal resize-listener))
      terminal)))
-
 
 (defn start
   "Start the terminal.  Consider using in-terminal instead."
@@ -148,42 +146,31 @@
         rows (.getRows size)]
     [cols rows]))
 
+(defn get-cursor-position
+  "Return the current cursor position on the terminal as [col row]"
+  [^Terminal terminal]
+  (let [pos (.getCursorPosition terminal)
+        col (.getColumn pos)
+        row (.getRow pos)]
+    [col row]))
 
 (defn move-cursor
   "Move the cursor to a specific location on the screen."
   [^Terminal terminal x y]
   (.moveCursor terminal x y))
 
-(defn put-character
-  "Draw the character at the current cursor location.
+(defn set-character [^Terminal terminal x y ch]
+  "Draw the character at the given cursor location."
+   (.set-character terminal x y (new TextCharacter ch)))
 
-  If x and y are given, moves the cursor there first.
-
-  Moves the cursor one character to the right, so a sequence of calls will
-  output next to each other.
-
-  "
-  ([^Terminal terminal ch]
-   (.putCharacter terminal ch))
-  ([^Terminal terminal ch x y]
-   (move-cursor terminal x y)
-   (put-character terminal ch)))
-
-(defn put-string
-  "Draw the string at the current cursor location.
-
-  If x and y are given, moves the cursor there first.
+(defn put-string [^Terminal terminal x y s]
+  "Draw the string at the given cursor location.
 
   The cursor will end up at the position directly after the string.
-
   "
-  ([^Terminal terminal s]
-   (dorun (map (partial put-character terminal)
-               s)))
-  ([terminal s x y]
-   (move-cursor terminal x y)
-   (put-string terminal s)))
-
+  (doseq [i (range 0 (.length s))]
+    (set-character terminal (+ x i) y) (.charAt s i))
+  (move-cursor terminal (+ x (.length s)) y))
 
 (defn clear
   "Clear the terminal.
@@ -201,22 +188,6 @@
 
 (defn set-bg-color [^Terminal terminal color]
   (.applyBackgroundColor terminal (c/colors color)))
-
-(defn set-style
-  "Enter a style"
-  [^Terminal terminal style]
-  (.applySGR terminal (into-array com.googlecode.lanterna.terminal.Terminal$SGR [(c/enter-styles style)])))
-
-(defn remove-style
-  "Exit a style"
-  [^Terminal terminal style]
-  (.applySGR terminal (into-array com.googlecode.lanterna.terminal.Terminal$SGR [(c/exit-styles style)])))
-
-(defn reset-styles
-  "Reset all styles"
-  [^Terminal terminal]
-  (.applySGR terminal (into-array com.googlecode.lanterna.terminal.Terminal$SGR [c/reset-style])))
-
 
 (defn get-key
   "Get the next keypress from the user, or nil if none are buffered.
@@ -249,7 +220,7 @@
   "
   ([^Terminal terminal] (get-key-blocking terminal {}))
   ([^Terminal terminal {:keys [interval timeout] :as opts}]
-     (block-on get-key [terminal] opts)))
+   (block-on get-key [terminal] opts)))
 
 
 (comment
@@ -264,6 +235,4 @@
   (put-string t "Hello, world!")
   (get-key-blocking t {:timeout 1000})
   (get-key-blocking t {:interval 2000})
-  (stop t)
-
-  )
+  (stop t))

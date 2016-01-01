@@ -1,6 +1,9 @@
 (ns lanterna.screen
   (:import com.googlecode.lanterna.screen.Screen
-           com.googlecode.lanterna.terminal.Terminal)
+           com.googlecode.lanterna.screen.TerminalScreen
+           com.googlecode.lanterna.terminal.Terminal
+           com.googlecode.lanterna.TerminalPosition
+           com.googlecode.lanterna.TextCharacter)
   (:use [lanterna.common :only [parse-key block-on]])
   (:require [lanterna.constants :as c]
             [lanterna.terminal :as t]))
@@ -75,7 +78,7 @@
                :rows 24
                :charset :utf-8
                :resize-listener nil}}]
-   (new Screen (t/get-terminal kind opts))))
+   (new TerminalScreen (t/get-terminal kind opts))))
 
 
 (defn start
@@ -129,6 +132,15 @@
   (.refresh screen))
 
 
+(defn get-cursor-position
+  "Return the current cursor position on the screen as [col row]"
+  [^Screen screen]
+  (let [pos (.getCursorPosition screen)
+        col (.getColumn pos)
+        row (.getRow pos)]
+      [col row]))
+
+
 (defn move-cursor
   "Move the cursor to a specific location on the screen.
 
@@ -140,8 +152,9 @@
 
   "
   [^Screen screen x y]
-  (.setCursorPosition screen x y))
+  (.setCursorPosition screen (new TerminalPosition x y)))
 
+;TODO Add style support
 (defn put-string
   "Put a string on the screen buffer, ready to be drawn at the next redraw.
 
@@ -161,7 +174,6 @@
   :styles - Styles to apply to the text.
   Can be a set containing some/none/all of (keys lanterna.constants/styles).
   (default #{})
-
   "
   ([^Screen screen x y s] (put-string screen x y s {}))
   ([^Screen screen x y ^String s {:as opts
@@ -172,9 +184,11 @@
    (let [styles ^clojure.lang.PersistentHashSet (set (map c/styles styles))
          x (int x)
          y (int y)
-         fg ^com.googlecode.lanterna.terminal.Terminal$Color (c/colors fg)
-         bg ^com.googlecode.lanterna.terminal.Terminal$Color (c/colors bg)]
-     (.putString screen x y s fg bg styles))))
+         fg ^com.googlecode.lanterna.TextColor (c/colors fg)
+         bg ^com.googlecode.lanterna.TextColor (c/colors bg)]
+     (doseq [i (range 0 (.length s))]
+        (.setCharacter screen (+ x i) y (new TextCharacter (.charAt s i) fg bg (java.util.EnumSet/noneOf com.googlecode.lanterna.SGR))))
+     (move-cursor screen (+ x (.length s)) y))))
 
 (defn put-sheet
   "EXPERIMENTAL!  Turn back now!
@@ -234,8 +248,8 @@
                                (if (char? i)
                                  (put-string screen c r (str i) opts)
                                  (put-string screen c r i opts)))
-              :else nil ; TODO: die loudly
-              ))
+              :else nil)) ; TODO: die loudly
+
           (put-row [r row]
             (doseq [[c item] (enumerate row)]
               (put-item (+ x c) r item)))]
@@ -286,7 +300,7 @@
   "
   ([^Screen screen] (get-key-blocking screen {}))
   ([^Screen screen {:keys [interval timeout] :as opts}]
-     (block-on get-key [screen] opts)))
+   (block-on get-key [screen] opts)))
 
 
 (comment
@@ -301,5 +315,4 @@
     (put-sheet s 5 13 [[r r r] [g g g] [b b b]]))
 
   (redraw s)
-  (stop s)
-  )
+  (stop s))
