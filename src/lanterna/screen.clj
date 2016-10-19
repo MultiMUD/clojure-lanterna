@@ -71,10 +71,10 @@
   ([kind] (get-screen kind {}))
   ([kind {:as opts
           :keys [cols rows charset resize-listener]
-          :or {:cols 80
-               :rows 24
-               :charset :utf-8
-               :resize-listener nil}}]
+          :or {cols 80
+               rows 24
+               charset :utf-8
+               resize-listener nil}}]
    (new Screen (t/get-terminal kind opts))))
 
 
