@@ -469,10 +469,18 @@ Redraw the given screen.
 
 This is how you actually flush any changes to the user's display.
 
+### lanterna.screen/get-cursor
+
+    :::clojure
+    (get-cursor screen x y)
+
+Retrieve the current location of the cursor on the screen as `[x y]`.
+
 ### lanterna.screen/move-cursor
 
     :::clojure
     (move-cursor screen x y)
+    (move-cursor screen [x y])
 
 Move the cursor to a specific location on the screen.
 
