@@ -140,9 +140,9 @@
 
   "
   ([^Screen screen x y]
-     (.setCursorPosition screen x y))
-  ([^Screen screen pos]
-     (apply #(.setCursorPosition screen %1 %2) pos)))
+   (.setCursorPosition screen x y))
+  ([^Screen screen [x y]]
+   (.setCursorPosition screen x y)))
 
 
 (defn get-cursor
