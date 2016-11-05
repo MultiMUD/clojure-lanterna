@@ -6,4 +6,7 @@
                  [com.googlecode.lanterna/lanterna "2.1.7"]]
   :java-source-paths ["./java"]
   ; :repositories {"sonatype-snapshots" "https://oss.sonatype.org/content/repositories/snapshots"}
-  )
+  :repositories {"releases" {:url "https://clojars.org/repo"
+                             :username :env
+                             :password :env
+                             :sign-releases false}})
