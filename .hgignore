@@ -11,3 +11,4 @@ pom.xml
 .lein-plugins
 docs/build
 src/java
+.lein-repl-history
