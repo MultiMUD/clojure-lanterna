@@ -3,6 +3,11 @@ Changelog
 
 Here's the list of changes in each released version.
 
+v0.9.7
+------
+
+* Fixed map destructuring syntax.
+
 v0.9.6
 ------
 
