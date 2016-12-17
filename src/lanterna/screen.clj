@@ -64,7 +64,7 @@
   The Swing screen will start out at this size but can be resized later by the
   user, and will ignore the charset entirely.
 
-  God only know what Cygwin will do.
+  God only knows what Cygwin will do.
 
   "
   ([] (get-screen :auto {}))
