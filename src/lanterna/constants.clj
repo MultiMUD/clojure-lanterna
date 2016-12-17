@@ -1,72 +1,58 @@
 (ns lanterna.constants
   (:import java.nio.charset.Charset
-           com.googlecode.lanterna.TerminalFacade
-           com.googlecode.lanterna.screen.Screen
-           com.googlecode.lanterna.terminal.Terminal
-           com.googlecode.lanterna.screen.ScreenCharacterStyle
-           com.googlecode.lanterna.terminal.swing.TerminalPalette
-           com.googlecode.lanterna.input.Key))
+           com.googlecode.lanterna.TextColor$ANSI
+           com.googlecode.lanterna.terminal.swing.TerminalEmulatorPalette
+           com.googlecode.lanterna.input.KeyType
+           com.googlecode.lanterna.SGR))
 
 
 (def charsets {:utf-8 (Charset/forName "UTF-8")})
 
 (def colors
-  {:black   com.googlecode.lanterna.terminal.Terminal$Color/BLACK
-   :white   com.googlecode.lanterna.terminal.Terminal$Color/WHITE
-   :red     com.googlecode.lanterna.terminal.Terminal$Color/RED
-   :green   com.googlecode.lanterna.terminal.Terminal$Color/GREEN
-   :blue    com.googlecode.lanterna.terminal.Terminal$Color/BLUE
-   :cyan    com.googlecode.lanterna.terminal.Terminal$Color/CYAN
-   :magenta com.googlecode.lanterna.terminal.Terminal$Color/MAGENTA
-   :yellow  com.googlecode.lanterna.terminal.Terminal$Color/YELLOW
-   :default com.googlecode.lanterna.terminal.Terminal$Color/DEFAULT})
-
-(def styles
-  {:bold ScreenCharacterStyle/Bold
-   :reverse ScreenCharacterStyle/Reverse
-   :underline ScreenCharacterStyle/Underline
-   :blinking ScreenCharacterStyle/Blinking})
+  {:black   TextColor$ANSI/BLACK
+   :white   TextColor$ANSI/WHITE
+   :red     TextColor$ANSI/RED
+   :green   TextColor$ANSI/GREEN
+   :blue    TextColor$ANSI/BLUE
+   :cyan    TextColor$ANSI/CYAN
+   :magenta TextColor$ANSI/MAGENTA
+   :yellow  TextColor$ANSI/YELLOW
+   :default TextColor$ANSI/DEFAULT})
 
 (def key-codes
-  {com.googlecode.lanterna.input.Key$Kind/NormalKey :normal
-   com.googlecode.lanterna.input.Key$Kind/Escape :escape
-   com.googlecode.lanterna.input.Key$Kind/Backspace :backspace
-   com.googlecode.lanterna.input.Key$Kind/ArrowLeft :left
-   com.googlecode.lanterna.input.Key$Kind/ArrowRight :right
-   com.googlecode.lanterna.input.Key$Kind/ArrowUp :up
-   com.googlecode.lanterna.input.Key$Kind/ArrowDown :down
-   com.googlecode.lanterna.input.Key$Kind/Insert :insert
-   com.googlecode.lanterna.input.Key$Kind/Delete :delete
-   com.googlecode.lanterna.input.Key$Kind/Home :home
-   com.googlecode.lanterna.input.Key$Kind/End :end
-   com.googlecode.lanterna.input.Key$Kind/PageUp :page-up
-   com.googlecode.lanterna.input.Key$Kind/PageDown :page-down
-   com.googlecode.lanterna.input.Key$Kind/Tab :tab
-   com.googlecode.lanterna.input.Key$Kind/ReverseTab :reverse-tab
-   com.googlecode.lanterna.input.Key$Kind/Enter :enter
-   com.googlecode.lanterna.input.Key$Kind/Unknown :unknown
-   com.googlecode.lanterna.input.Key$Kind/CursorLocation :cursor-location})
-
+  {KeyType/Character :character
+   KeyType/Escape :escape
+   KeyType/Backspace :backspace
+   KeyType/ArrowLeft :left
+   KeyType/ArrowRight :right
+   KeyType/ArrowUp :up
+   KeyType/ArrowDown :down
+   KeyType/Insert :insert
+   KeyType/Delete :delete
+   KeyType/Home :home
+   KeyType/End :end
+   KeyType/PageUp :page-up
+   KeyType/PageDown :page-down
+   KeyType/Tab :tab
+   KeyType/ReverseTab :reverse-tab
+   KeyType/Enter :enter
+   KeyType/Unknown :unknown
+   KeyType/CursorLocation :cursor-location
+   KeyType/EOF :eof})
 
 (def palettes
-  {:gnome      TerminalPalette/GNOME_TERMINAL
-   :vga        TerminalPalette/STANDARD_VGA
-   :windows-xp TerminalPalette/WINDOWS_XP_COMMAND_PROMPT
-   :mac-os-x   TerminalPalette/MAC_OS_X_TERMINAL_APP
-   :xterm      TerminalPalette/PUTTY
-   :putty      TerminalPalette/XTERM})
+  {:gnome      TerminalEmulatorPalette/GNOME_TERMINAL
+   :vga        TerminalEmulatorPalette/STANDARD_VGA
+   :windows-xp TerminalEmulatorPalette/WINDOWS_XP_COMMAND_PROMPT
+   :mac-os-x   TerminalEmulatorPalette/MAC_OS_X_TERMINAL_APP
+   :putty      TerminalEmulatorPalette/PUTTY
+   :xterm      TerminalEmulatorPalette/XTERM})
 
-(def enter-styles
-  {:bold com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BOLD
-   :reverse com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_REVERSE
-   :blinking com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BLINK
-   :underline com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_UNDERLINE})
-
-(def exit-styles
-  {:bold com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_BOLD
-   :reverse com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_REVERSE
-   :blinking com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_BLINK
-   :underline com.googlecode.lanterna.terminal.Terminal$SGR/EXIT_UNDERLINE})
-
-(def reset-style
-  com.googlecode.lanterna.terminal.Terminal$SGR/RESET_ALL)
+(def styles
+  {:bold SGR/BOLD
+   :reverse SGR/REVERSE
+   :blinking SGR/BLINK
+   :underline SGR/UNDERLINE
+   :circled SGR/CIRCLED
+   :strikethrough SGR/CROSSED_OUT
+   :fraktur SGR/FRAKTUR})
