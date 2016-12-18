@@ -75,7 +75,7 @@
 
   :auto   - Use a Swing terminal if a windowing system is present, or use a text
             based terminal appropriate to the operating system.
-  :text   - Force a text-based (i.e. non-Swing) terminal.  Try to guess the
+  :text   - Force a text-based (i.e. non-Swing) terminal. Try to guess the
             appropriate kind of terminal (UNIX/Cygwin) by the OS.
   :unix   - Force a UNIX console terminal.
   :cygwin - Force a Cygwin console terminal.
@@ -87,7 +87,7 @@
   :rows    - Height of the desired terminal in characters (default 24).
   :charset - Charset of the desired terminal. Can be any of
              (keys lanterna.constants/charsets) (default :utf-8).
-  :resize-listener - A function to call when the terminal is resized.  This
+  :resize-listener - A function to call when the terminal is resized. This
                      function should take two parameters: the new number of
                      columns, and the new number of rows.
   :font      - Font to use. String or collection of strings.
@@ -126,16 +126,16 @@
      terminal)))
 
 (defn start
-  "Start the terminal.  Consider using in-terminal instead."
+  "Start the terminal. Consider using with-terminal instead."
   [^Terminal terminal]
   (.enterPrivateMode terminal))
 
 (defn stop
-  "Stop the terminal.  Consider using in-terminal instead."
+  "Stop the terminal. Consider using with-terminal instead."
   [^Terminal terminal]
   (.exitPrivateMode terminal))
 
-(defmacro in-terminal
+(defmacro with-terminal
   "Start the given terminal, perform the body, and stop the terminal afterward."
   [terminal & body]
   `(do
@@ -158,7 +158,7 @@
   ([^Terminal terminal [x y]]
    (.setCursorPosition terminal x y)))
 
-(defn put-character
+(defn put-char
   "Draw the character at the current cursor location. If x and y are given,
   moves the cursor there first. Moves the cursor one character to the right, so
   a sequence of calls will output next to each other."
@@ -166,14 +166,14 @@
    (.putCharacter terminal ch))
   ([^Terminal terminal ch x y]
    (move-cursor terminal x y)
-   (put-character terminal ch)))
+   (put-char terminal ch)))
 
 (defn put-string
   "Draw the string at the current cursor location. If x and y are given, moves
   the cursor there first. The cursor will end up at the position directly after
   the string."
   ([^Terminal terminal s]
-   (doseq [c s] (put-character terminal c)))
+   (doseq [c s] (put-char terminal c)))
   ([^Terminal terminal ^String s ^Integer x ^Integer y]
    (move-cursor terminal x y)
    (put-string terminal s))
@@ -183,32 +183,28 @@
       :or {fg :default
            bg :default
            styles #{}}}]
-   (doseq [style styles] (.enableSGR terminal style))
+   (doseq [style styles] (.enableSGR terminal (c/styles style)))
    (.setForegroundColor terminal (c/colors fg))
    (.setBackgroundColor terminal (c/colors bg))
    (put-string terminal s x y)
    (.resetColorAndSGR terminal)))
 
 (defn clear
-  "Clear the terminal.
-
-  The cursor will be at 0 0 afterwards.
-
-  "
+  "Clear the terminal, placing the cursor at (0, 0)."
   [^Terminal terminal]
   (.clearScreen terminal)
   (move-cursor terminal 0 0))
 
 (defn get-cursor
-  "Return the cursor position as [x y]."
+  "Return the cursor position as (x, y)."
   [^Terminal terminal]
   (let [pos (.getCursorPosition terminal)]
     [(.getColumn pos) (.getRow pos)]))
 
-(defn set-fg-color [^Terminal terminal color]
+(defn set-fg [^Terminal terminal color]
   (.setForegroundColor terminal (c/colors color)))
 
-(defn set-bg-color [^Terminal terminal color]
+(defn set-bg [^Terminal terminal color]
   (.setBackgroundColor terminal (c/colors color)))
 
 (defn set-style
@@ -225,6 +221,18 @@
   "Reset all styles and return colors to their defaults"
   [^Terminal terminal]
   (.resetColorAndSGR terminal))
+
+(defmacro with-styles
+  "Perform body with the given colors and styles."
+  [term fgs bgs styles & body]
+  `(do
+     (doseq [style styles] (set-style term style))
+     (doseq [fg fgs] (set-fg term fg))
+     (doseq [bg bgs] (set-bg term bg))
+     (try
+       ~@body
+       (finally
+         (reset-styles term term)))))
 
 (def get-keystroke i/get-keystroke)
 (def get-key i/get-key)
