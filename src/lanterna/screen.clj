@@ -130,6 +130,15 @@
   [^TerminalScreen screen]
   (t/get-cursor (.getTerminal screen)))
 
+(defn put-char
+  "Draw the character at the current cursor location. If x and y are given,
+  moves the cursor there first. Moves the cursor one character to the right, so
+  a sequence of calls will output next to each other."
+  ([^TerminalScreen screen]
+   (put-char (.getTerminal screen ch)))
+  ([^TerminalScreen screen ^Character ch ^Integer x ^Integer y]
+   (put-char terminal ch x y)))
+
 (defn put-string
   "Put a string on the screen buffer, ready to be drawn at the next redraw.
 
@@ -154,7 +163,7 @@
      :or {fg :default
           bg :default
           styles #{}}}]
-   (t/put-string (.getTerminal screen) x y s opts)))
+   (t/put-string (.getTerminal screen) s x y opts)))
 
 (defn put-sheet
   "EXPERIMENTAL!  Turn back now!
