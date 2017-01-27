@@ -10,32 +10,100 @@
            com.googlecode.lanterna.terminal.swing.TerminalEmulatorColorConfiguration
            com.googlecode.lanterna.terminal.swing.TerminalEmulatorDeviceConfiguration
            com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration$BoldMode
+           com.googlecode.lanterna.screen.TerminalScreen
            java.awt.GraphicsEnvironment
            java.awt.Font)
   (:require [lanterna.constants :as c]
             [lanterna.input :as i]))
 
-(defn add-resize-listener
+(defn underlying-term
+  "Get the underlying terminal of an object"
+  [term-or-screen]
+  (if (instance? Terminal term-or-screen)
+    term-or-screen
+    (.getTerminal term-or-screen)))
+
+(defn set-fg!
+  [terminal color]
+  (let [term (underlying-term terminal)]
+    (.setForegroundColor term (c/colors color))))
+
+(defn set-bg!
+  [terminal color]
+  (let [term (underlying-term terminal)]
+    (.setBackgroundColor term (c/colors color))))
+
+(defn set-style!
+  "Enter a style"
+  [terminal style]
+  (let [term (underlying-term terminal)]
+    (.enableSGR term (c/styles style))))
+
+(defn remove-style!
+  "Exit a style"
+  [terminal style]
+  (let [term (underlying-term terminal)]
+    (.disableSGR term (c/styles style))))
+
+(defn reset-styles!
+  "Reset all styles and return colors to their defaults"
+  [terminal]
+  (let [term (underlying-term terminal)]
+    (.resetColorAndSGR term)))
+
+(defmacro with-styles
+  "Perform body with the given colors and styles."
+  [term & body]
+  `(try ~@body
+        (finally
+          (reset-styles! ~term))))
+
+(defn move-cursor!
+  "Move the cursor to a specific location on the screen."
+  ([terminal [x y]]
+   (move-cursor! terminal x y))
+  ([terminal x y]
+   (let [term (underlying-term terminal)]
+     (.setCursorPosition term x y))))
+
+(defn get-cursor
+  "Return the cursor position as (x, y)."
+  [terminal]
+  (let [term (underlying-term terminal)
+        pos (.getCursorPosition terminal)]
+    [(.getColumn pos) (.getRow pos)]))
+
+(defmacro with-pos
+  "Perform body with the given colors and styles."
+  [term & body]
+  `(let [[ox# oy#] (get-cursor ~term)]
+     (try ~@body
+          (finally
+            (move-cursor! ~term ox# oy#)))))
+
+(defn add-resize-listener!
   "Create a listener that will call the supplied fn when the terminal is resized.
   The function must take two arguments: the new number of columns and the new
   number of rows.
 
   The listener itself will be returned. You don't need to do anything with it,
   but you can use it to remove it later with remove-resize-listener."
-  [^Terminal terminal listener-fn]
-  (let [listener (proxy [SimpleTerminalResizeListener] [(.getTerminalSize terminal)]
-                   (onResized [terminal newSize]
+  [terminal listener-fn]
+  (let [term (underlying-term terminal)
+        listener (proxy [SimpleTerminalResizeListener] [(.getTerminalSize term)]
+                   (onResized [term newSize]
                      (listener-fn
-                      terminal
+                      term
                       (.getColumns newSize)
                       (.getRows newSize))))]
-    (.addResizeListener terminal listener)
+    (.addResizeListener term listener)
     listener))
 
-(defn remove-resize-listener
-  "Remove a resize listener from the given terminal."
-  [^Terminal terminal listener]
-  (.removeResizeListener terminal listener))
+(defn remove-resize-listener!
+  "Remove a resize listener from the given term."
+  [terminal listener]
+  (let [term (underlying-term terminal)]
+    (.removeResizeListener term listener)))
 
 (defn get-available-fonts []
   (set (.getAvailableFontFamilyNames
@@ -46,8 +114,7 @@
     (first (filter available fonts))))
 
 (defn- get-factory [kind
-                    {:as opts
-                     :keys [title cols rows charset font font-size palette]
+                    {:keys [title cols rows charset font font-size palette]
                      :or {title "terminal"
                           cols 80
                           rows 24
@@ -58,11 +125,11 @@
   (doto (DefaultTerminalFactory. System/out System/in (c/charsets charset))
     (.setForceTextTerminal (= :text kind))
     (.setTerminalEmulatorTitle title)
-    ;; (.setTerminalEmulatorFontConfiguration
-    ;;  (SwingTerminalFontConfiguration.
-    ;;   true
-    ;;   AWTTerminalFontConfiguration$BoldMode/EVERYTHING
-    ;;   (Font. (get-font font) Font/PLAIN font-size))) ;; TODO: This line is broken.
+    (.setTerminalEmulatorFontConfiguration
+     (SwingTerminalFontConfiguration.
+      true
+      AWTTerminalFontConfiguration$BoldMode/EVERYTHING
+      (into-array [(Font. (get-font font) Font/PLAIN font-size)])))
     (.setInitialTerminalSize (TerminalSize. cols rows))
     (.setTerminalEmulatorColorConfiguration (TerminalEmulatorColorConfiguration/newInstance (c/palettes palette)))
     (.setTerminalEmulatorDeviceConfiguration (TerminalEmulatorDeviceConfiguration.)))) ; TODO: Allow customization
@@ -77,8 +144,8 @@
             based terminal appropriate to the operating system.
   :text   - Force a text-based (i.e. non-Swing) terminal. Try to guess the
             appropriate kind of terminal (UNIX/Cygwin) by the OS.
-  :unix   - Force a UNIX console terminal.
-  :cygwin - Force a Cygwin console terminal.
+  :unix   - Force a UNIX text-based terminal.
+  :cygwin - Force a Cygwin text-based terminal.
 
   Options can contain one or more of the following keys:
 
@@ -104,16 +171,16 @@
   user, and will ignore the charset entirely."
   ([] (get-terminal {}))
   ([{:as opts
-          :keys [kind title cols rows charset resize-listener font font-size palette]
-          :or {kind :auto
-               title "terminal"
-               cols 80
-               rows 24
-               charset :utf-8
-               resize-listener nil
-               font ["Droid Sans Mono" "DejaVu Sans Mono" "Consolas" "Monospaced" "Mono"]
-               font-size 14
-               palette :mac-os-x}}]
+     :keys [kind title cols rows charset resize-listener font font-size palette]
+     :or {kind :auto
+          title "terminal"
+          cols 80
+          rows 24
+          charset :utf-8
+          resize-listener nil
+          font ["Droid Sans Mono" "DejaVu Sans Mono" "Consolas" "Monospaced" "Mono"]
+          font-size 14
+          palette :gnome}}]
    (let [fonts (if (coll? font) font [font])
          factory (get-factory kind opts)
          terminal (case kind
@@ -122,18 +189,20 @@
                     :unix (UnixTerminal. System/in System/out (c/charsets charset))
                     :cygwin (CygwinTerminal. System/in System/out (c/charsets charset)))]
      (when resize-listener
-       (add-resize-listener terminal resize-listener))
+       (add-resize-listener! terminal resize-listener))
      terminal)))
 
-(defn start
+(defn start!
   "Start the terminal. Consider using with-terminal instead."
-  [^Terminal terminal]
-  (.enterPrivateMode terminal))
+  [terminal]
+  (let [term (underlying-term terminal)]
+    (.enterPrivateMode terminal)))
 
-(defn stop
+(defn stop!
   "Stop the terminal. Consider using with-terminal instead."
-  [^Terminal terminal]
-  (.exitPrivateMode terminal))
+  [terminal]
+  (let [term (underlying-term terminal)]
+    (.exitPrivateMode term)))
 
 (defmacro with-terminal
   "Start the given terminal, perform the body, and stop the terminal afterward."
@@ -145,96 +214,58 @@
 
 (defn get-size
   "Return the current size of the terminal as [cols rows]."
-  [^Terminal terminal]
-  (let [size (.getTerminalSize terminal)
-        cols (.getColumns size)
-        rows (.getRows size)]
-    [cols rows]))
+  [terminal]
+  (let [term (underlying-term terminal)
+        size (.getTerminalSize terminal)]
+    [(.getColumns size) (.getRows size)]))
 
-(defn move-cursor
-  "Move the cursor to a specific location on the screen."
-  ([^Terminal terminal x y]
-   (.setCursorPosition terminal x y))
-  ([^Terminal terminal [x y]]
-   (.setCursorPosition terminal x y)))
-
-(defn put-char
+(defn put-char!
   "Draw the character at the current cursor location. If x and y are given,
   moves the cursor there first. Moves the cursor one character to the right, so
   a sequence of calls will output next to each other."
-  ([^Terminal terminal ch]
-   (.putCharacter terminal ch))
-  ([^Terminal terminal ch x y]
-   (move-cursor terminal x y)
-   (put-char terminal ch)))
+  ([terminal ch]
+   (let [term (underlying-term terminal)]
+     (.putCharacter term ch)))
+  ([terminal ch x y]
+   (with-pos terminal
+     (move-cursor! terminal x y)
+     (put-char! terminal ch)))
+  ([terminal ch x y
+    {:keys [fg bg styles]
+     :or {fg :default
+          bg :default
+          styles #{}}}]
+   (with-styles terminal
+     (doseq [style styles]
+       (set-style! terminal style))
+     (set-fg! terminal fg)
+     (set-bg! terminal bg)
+     (put-char! terminal ch x y))))
 
-(defn put-string
+(defn put-string!
   "Draw the string at the current cursor location. If x and y are given, moves
   the cursor there first. The cursor will end up at the position directly after
   the string."
-  ([^Terminal terminal s]
-   (doseq [c s] (put-char terminal c)))
-  ([^Terminal terminal ^String s ^Integer x ^Integer y]
-   (move-cursor terminal x y)
-   (put-string terminal s))
-  ([^Terminal terminal ^String s ^Integer x ^Integer y
-     {:as opts
-      :keys [fg bg styles]
-      :or {fg :default
-           bg :default
-           styles #{}}}]
-   (doseq [style styles] (.enableSGR terminal (c/styles style)))
-   (.setForegroundColor terminal (c/colors fg))
-   (.setBackgroundColor terminal (c/colors bg))
-   (put-string terminal s x y)
-   (.resetColorAndSGR terminal)))
+  ([terminal s]
+   (doseq [c s] (put-char! terminal c)))
+  ([terminal ^String s ^Integer x ^Integer y]
+   (with-pos terminal
+     (move-cursor! terminal x y)
+     (put-string! terminal s)))
+  ([terminal ^String s ^Integer x ^Integer y
+    {:as opts
+     :keys [fg bg styles]
+     :or {fg :default
+          bg :default
+          styles #{}}}]
+   (with-styles terminal
+     (doseq [style styles]
+       (set-style! terminal style))
+     (set-fg! terminal fg)
+     (set-bg! terminal bg)
+     (put-string! terminal s x y))))
 
-(defn clear
-  "Clear the terminal, placing the cursor at (0, 0)."
+(defn clear!
+  "Clear the terminal"
   [^Terminal terminal]
-  (.clearScreen terminal)
-  (move-cursor terminal 0 0))
-
-(defn get-cursor
-  "Return the cursor position as (x, y)."
-  [^Terminal terminal]
-  (let [pos (.getCursorPosition terminal)]
-    [(.getColumn pos) (.getRow pos)]))
-
-(defn set-fg [^Terminal terminal color]
-  (.setForegroundColor terminal (c/colors color)))
-
-(defn set-bg [^Terminal terminal color]
-  (.setBackgroundColor terminal (c/colors color)))
-
-(defn set-style
-  "Enter a style"
-  [^Terminal terminal style]
-  (.enableSGR terminal (c/styles style)))
-
-(defn remove-style
-  "Exit a style"
-  [^Terminal terminal style]
-  (.disableSGR terminal (c/styles style)))
-
-(defn reset-styles
-  "Reset all styles and return colors to their defaults"
-  [^Terminal terminal]
-  (.resetColorAndSGR terminal))
-
-(defmacro with-styles
-  "Perform body with the given colors and styles."
-  [term fgs bgs styles & body]
-  `(do
-     (doseq [style styles] (set-style term style))
-     (doseq [fg fgs] (set-fg term fg))
-     (doseq [bg bgs] (set-bg term bg))
-     (try
-       ~@body
-       (finally
-         (reset-styles term term)))))
-
-(def get-keystroke i/get-keystroke)
-(def get-key i/get-key)
-(def get-keystroke-blocking i/get-keystroke-blocking)
-(def get-key-blocking i/get-keystroke-blocking)
+  (.clearScreen terminal))
