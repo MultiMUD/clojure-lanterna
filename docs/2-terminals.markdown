@@ -19,7 +19,7 @@ Let's try it out.  Open up a REPL and pull in the namespace:
 Now get a Terminal:
 
     :::clojure
-    (def term (t/get-terminal :swing))
+    (def term (t/get-terminal))
 
 Now we've got a Terminal called `term`.
 
@@ -33,7 +33,7 @@ You may have noticed that nothing seems to have happened.  Now you need to
 "start" the terminal to initialize it:
 
     :::clojure
-    (t/start term)
+    (t/start! term)
 
 Now you should see a blank terminal that looks like this:
 
@@ -45,9 +45,9 @@ Writing Text
 You can print characters to the current cursor location with `put-character`:
 
     :::clojure
-    (t/put-character term \H)
-    (t/put-character term \i)
-    (t/put-character term \!)
+    (t/put-char! term \H)
+    (t/put-char! term \i)
+    (t/put-char! term \!)
 
 ![Terminal that says Hi](http://i.imgur.com/YyGEz.png)
 
@@ -65,16 +65,16 @@ You might want to make this a bit more convenient:
 ![Terminal that says Hi my name is Steve](http://i.imgur.com/LECAv.png)
 
 But of course clojure-lanterna already provides that as the function
-`put-string`.
+`put-string!`.
 
 Moving the Cursor
 -----------------
 
-You can move the cursor with `move-cursor`:
+You can move the cursor with `move-cursor!`:
 
     :::clojure
-    (t/move-cursor term 40 12)
-    (t/put-character term \@)
+    (t/move-cursor! term 40 12)
+    (t/put-char! term \@)
 
 This moves the cursor to column 40, row 12 and prints an @.
 
@@ -93,18 +93,18 @@ Colors
 You can change the foreground and background colors:
 
     :::clojure
-    (t/move-cursor term 0 6)
-    (t/set-fg-color term :red)
-    (t/put-string term "Red")
+    (t/move-cursor! term 0 6)
+    (t/set-fg! term :red)
+    (t/put-string! term "Red")
 
-    (t/move-cursor term 0 7)
-    (t/set-fg-color term :blue)
-    (t/put-string term "Blue")
+    (t/move-cursor! term 0 7)
+    (t/set-fg! term :blue)
+    (t/put-string! term "Blue")
 
-    (t/move-cursor term 0 8)
-    (t/set-fg-color term :black)
-    (t/set-bg-color term :green)
-    (t/put-string term "Green")
+    (t/move-cursor! term 0 8)
+    (t/set-fg! term :black)
+    (t/set-bg! term :green)
+    (t/put-string! term "Green")
 
 ![Terminal with Colors](http://i.imgur.com/ZkxhC.png)
 
@@ -113,8 +113,8 @@ write will use that color.  To reset the colors back to the default you can use
 the special color `:default`:
 
     :::clojure
-    (t/set-fg-color term :default)
-    (t/set-bg-color term :default)
+    (t/set-fg! term :default)
+    (t/set-bg! term :default)
 
 Styles
 ------
@@ -262,13 +262,13 @@ That wraps up the terminal layer.  Go ahead and close your terminal:
     (t/stop term)
 
 One more thing: if you get tired of manually `start`ing and `stop`ing terminals,
-you can use the `in-terminal` macro to do it for you:
+you can use the `with-terminal` macro to do it for you:
 
     :::clojure
     (let [term (t/get-terminal :swing)]
-      (t/in-terminal term
-        (t/put-string term "Hello!  Press any key to end.")
-        (t/get-key-blocking term)))
+      (t/with-terminal term
+        (t/put-string! term "Hello!  Press any key to end.")
+        (t/get-key-blocking! term)))
 
 What's Next?
 ------------
