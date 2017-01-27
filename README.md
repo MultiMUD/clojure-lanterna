@@ -2,6 +2,8 @@
 
 A wrapper around the Lanterna text user interface library.
 
+![Screenshot](example.png)
+
 ## Leiningen
 
     [clojure-lanterna "....."]
