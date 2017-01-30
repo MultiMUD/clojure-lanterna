@@ -11,3 +11,8 @@ Add this to your `project.clj`:
     [clojure-lanterna "0.9.7"]
 
 That's it.
+
+TODO: How to [boot].
+
+[boot]: http://boot-clj.com
+

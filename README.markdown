@@ -4,15 +4,15 @@ A Clojurey wrapper around the Lanterna terminal output library.
 
 Read the [documentation][] to learn more.
 
-[documentation]: http://sjl.bitbucket.org/clojure-lanterna/
+[documentation]: https://multimud.github.io/clojure-lanterna/
 
 ## Leiningen
 
-    [clojure-lanterna "....."]
+    [clojure-lanterna "0.9.7"]
 
 ## License
 
-Copyright 2016 Steve Losh and contributors
+Copyright 2012-2016 Steve Losh and contributors
 
 Distributed under the GNU Lesser General Public License, the same as Lanterna
 itself.
