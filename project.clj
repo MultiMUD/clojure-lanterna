@@ -1,6 +1,6 @@
 (defproject clojure-lanterna "0.9.7"
   :description "A Clojure wrapper around the Lanterna terminal output library."
-  :url "http://sjl.bitbucket.org/clojure-lanterna/"
+  :url "http://multimud.github.io/clojure-lanterna/"
   :license {:name "LGPL"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.googlecode.lanterna/lanterna "2.1.7"]]

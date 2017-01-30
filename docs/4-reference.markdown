@@ -3,11 +3,59 @@ Reference
 
 Here's the deep dive.
 
-If you haven't read the [terminal](../terminals/) and [screen](../screens/)
+If you haven't read the [terminal](./2-terminals) and [screen](./3-screens)
 documentation you should read those to wrap your brain around the structure of
 things first.
 
-[TOC]
+Table Of Contents
+-----------------
+
+<!-- vim-markdown-toc GFM -->
+* [Constants](#constants)
+	* [Colors](#colors)
+	* [Styles](#styles)
+	* [Key Codes](#key-codes)
+	* [Charsets](#charsets)
+	* [Consoles](#consoles)
+	* [Palettes](#palettes)
+	* [Font Names](#font-names)
+* [Terminals](#terminals)
+	* [lanterna.terminal/get-terminal](#lanternaterminalget-terminal)
+	* [lanterna.terminal/start](#lanternaterminalstart)
+	* [lanterna.terminal/stop](#lanternaterminalstop)
+	* [lanterna.terminal/in-terminal](#lanternaterminalin-terminal)
+	* [lanterna.terminal/get-size](#lanternaterminalget-size)
+	* [lanterna.terminal/move-cursor](#lanternaterminalmove-cursor)
+	* [lanterna.terminal/put-character](#lanternaterminalput-character)
+	* [lanterna.terminal/put-string](#lanternaterminalput-string)
+	* [lanterna.terminal/clear](#lanternaterminalclear)
+	* [lanterna.terminal/set-fg-color](#lanternaterminalset-fg-color)
+	* [lanterna.terminal/set-bg-color](#lanternaterminalset-bg-color)
+	* [lanterna.terminal/set-style](#lanternaterminalset-style)
+	* [lanterna.terminal/remove-style](#lanternaterminalremove-style)
+	* [lanterna.terminal/reset-styles](#lanternaterminalreset-styles)
+	* [lanterna.terminal/get-key](#lanternaterminalget-key)
+	* [lanterna.terminal/get-key-blocking](#lanternaterminalget-key-blocking)
+	* [lanterna.terminal/add-resize-listener](#lanternaterminaladd-resize-listener)
+	* [lanterna.terminal/remove-resize-listener](#lanternaterminalremove-resize-listener)
+	* [lanterna.terminal/get-available-fonts](#lanternaterminalget-available-fonts)
+* [Screens](#screens)
+	* [lanterna.screen/get-screen](#lanternascreenget-screen)
+	* [lanterna.screen/start](#lanternascreenstart)
+	* [lanterna.screen/stop](#lanternascreenstop)
+	* [lanterna.screen/in-screen](#lanternascreenin-screen)
+	* [lanterna.screen/get-size](#lanternascreenget-size)
+	* [lanterna.screen/redraw](#lanternascreenredraw)
+	* [lanterna.screen/get-cursor](#lanternascreenget-cursor)
+	* [lanterna.screen/move-cursor](#lanternascreenmove-cursor)
+	* [lanterna.screen/put-string](#lanternascreenput-string)
+	* [lanterna.screen/clear](#lanternascreenclear)
+	* [lanterna.screen/get-key](#lanternascreenget-key)
+	* [lanterna.screen/get-key-blocking](#lanternascreenget-key-blocking)
+	* [lanterna.screen/add-resize-listener](#lanternascreenadd-resize-listener)
+	* [lanterna.screen/remove-resize-listener](#lanternascreenremove-resize-listener)
+
+<!-- vim-markdown-toc -->
 
 Constants
 ---------
@@ -124,7 +172,7 @@ Terminals
 ---------
 
 The terminal layer is the lowest-level layer.  Read the [terminal
-documentation](../terminals/) for an overview.
+documentation](./2-terminals) for an overview.
 
 ### lanterna.terminal/get-terminal
 
@@ -371,7 +419,7 @@ Screens
 -------
 
 The screen layer is an abstraction that provides buffering on top of the
-terminal layer.  Read the [screen documentation](../screens/) for an overview.
+terminal layer.  Read the [screen documentation](./3-screens) for an overview.
 
 ### lanterna.screen/get-screen
 

@@ -6,7 +6,20 @@ The lowest layer of Lanterna (and thus clojure-lanterna) is a Terminal.
 You can use terminals to do the stuff you normally think of using a curses
 library for.
 
-[TOC]
+Table of Contents
+-----------------
+
+<!-- vim-markdown-toc GFM -->
+* [Getting a Terminal](#getting-a-terminal)
+* [Writing Text](#writing-text)
+* [Moving the Cursor](#moving-the-cursor)
+* [Colors](#colors)
+* [Styles](#styles)
+* [Input](#input)
+* [Sizing](#sizing)
+* [What's Next?](#whats-next)
+
+<!-- vim-markdown-toc -->
 
 Getting a Terminal
 ------------------
@@ -24,7 +37,9 @@ Now get a Terminal:
 Now we've got a Terminal called `term`.
 
 We're going to force this to be a Swing-based terminal instead of it being in
-the console, because we don't want to mess with our REPL.
+the console, because we don't want to mess with our REPL. Besides, leiningen's
+I/O redirections prevent direct access to the terminal the REPL is running in,
+in case you _want_ to mess with the REPL, start it with `lein trampoline repl`.
 
 When you write a standalone program you can use `:text` to force the terminal to
 use the console, but we'll talk more about that later.
@@ -250,7 +265,9 @@ Now resize the Swing window and try again:
     @terminal-size
     ; => [78 24]
 
-TODO: Figure out how to get the initial size.
+TODO: 
+  * Figure out how to get the initial size (requested before the terminal is started, actual after)
+  * Resizing needs to change by at least one character on x/y axis for the listener to be called
 
 What you do in your resize listener is up to you.  You might want to record the
 size as we did here, and you might also want to redraw your UI, because it'll
@@ -274,4 +291,4 @@ What's Next?
 ------------
 
 Now that you've covered all of the major concepts of Lanterna's terminal layer,
-it's time to move on to the next layer: [screens](../screens/).
+it's time to move on to the next layer: [screens](./3-screens).

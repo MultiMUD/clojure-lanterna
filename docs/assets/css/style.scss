@@ -1,0 +1,15 @@
+---
+---
+
+@import "{{ site.theme }}";
+/*
+ * Can one believe github's doc, I wonder? According to this:
+ * https://help.github.com/articles/customizing-css-and-html-in-your-jekyll-theme/
+ * I would expect the following to show up in the generated CSS, but it's not.
+ */
+header, footer { display: none; }
+/* A user dictactes the width of their browser window, so go and flow with it.
+ * Webdesign needs ratios, not pixels. 
+ */
+.wrapper { width: 100%; }
+section { width: 95%; float: none; }

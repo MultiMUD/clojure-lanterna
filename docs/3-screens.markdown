@@ -16,11 +16,24 @@ This improves performance (TODO: elaborate) and makes it easy to avoid
 showing half-drawn UIs to your users.
 
 clojure-lantera's screen API is *very* similar to the terminal one.  **If you
-haven't read the [Terminal documentation](../terminals/) you need to do that
+haven't read the [Terminal documentation](./2-terminals) you need to do that
 before you read this.**  This document moves very quickly because it assumes
 you've read the previous one.
 
-[TOC]
+Table Of Contents
+-----------------
+
+<!-- vim-markdown-toc GFM -->
+* [Getting a Screen](#getting-a-screen)
+* [Writing Text](#writing-text)
+	* [Colors](#colors)
+	* [Styles](#styles)
+* [Moving the Cursor](#moving-the-cursor)
+* [Input](#input)
+* [Sizing](#sizing)
+* [What's Next?](#whats-next)
+
+<!-- vim-markdown-toc -->
 
 Getting a Screen
 ----------------
@@ -187,6 +200,6 @@ What's Next?
 Now that you can use the screen layer for double-buffered console rendering
 you've got pretty much everything you need.  Go make something!
 
-The [Reference documentation](../reference/) has all the detailed information
+The [Reference documentation](./4-reference) has all the detailed information
 you'll probably find yourself looking for once you actually dive in and start
 building.

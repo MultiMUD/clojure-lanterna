@@ -1,14 +1,17 @@
 clojure-lanterna is a thin wrapper around the [Lanterna][] Java library to make
 it more Clojure-friendly.
 
-**It's still pre-1.0, so expect brokenness and backwards incompatibility.  Once
-it hits 1.0 you can be confident I'll stop breaking your shit all the time.**
+Table Of Contents
+-----------------
 
-**License:** GNU Lesser GPL (yes, you can link with code under another license!)  
-**Documentation:** <http://sjl.bitbucket.org/clojure-lanterna/>  
-**Issues:** <http://github.com/sjl/clojure-lanterna/issues/>  
-**Git:** <http://github.com/sjl/clojure-lanterna/>  
-**Mercurial:** <http://bitbucket.org/sjl/clojure-lanterna/>
+<!-- vim-markdown-toc GFM -->
+* [What is It?](#what-is-it)
+* [Notes](#notes)
+* [How to Use It](#how-to-use-it)
+* [I Want a Hello, World!](#i-want-a-hello-world)
+* [Further Documentation](#further-documentation)
+
+<!-- vim-markdown-toc -->
 
 What is It?
 -----------
@@ -23,6 +26,18 @@ a real terminal available (inside an IDE or on a certain terrible OS).
 
 It's particularly nice for writing Roguelikes.
 
+Notes
+-----
+
+**It's still pre-1.0, so expect brokenness and backwards incompatibility.  Once
+it hits 1.0 you can be confident I'll stop breaking your code all the time.**
+
+**License:** GNU Lesser GPL (yes, you can link with code under another license!)  
+**Documentation:** <https://multimud.github.io/clojure-lanterna/>  
+**Issues:** <https://github.com/multimud/clojure-lanterna/issues/>  
+**Git:** <https://github.com/multimud/clojure-lanterna/>  
+
+
 How to Use It
 -------------
 
@@ -36,17 +51,19 @@ To get started:
    documentation][lanterna-docs].  It sums up some main concepts and things
    you'll need to watch out for.
 
-2. Come back here and read the [Installation](./installation/) docs to get
+2. Come back here and read the [Installation](./1-installation) docs to get
    clojure-lanterna on your machine.
 
-3. Read the [Terminal](./terminals/) and [Screen](./screens/) documents here in
+3. Read the [Terminal](./2-terminals) and [Screen](./3-screens) documents here in
    order.
 
-4. Have fun!  Consult the [Reference](./reference/) document if you need more
+4. Have fun!  Consult the [Reference](./4-reference) document if you need more
    detailed information about something.  Most functions also have docstrings.
 
-[Lanterna]: https://code.google.com/p/lanterna/
-[lanterna-docs]: https://code.google.com/p/lanterna/wiki/DevelopmentGuide
+5. Looking for changes across clojure-lanterna versions? Try the [Changelog](./5-changelog)
+
+[Lanterna]: https://github.com/mabe02/lanterna
+[lanterna-docs]: https://code.google.com/archive/p/lanterna/wikis/DevelopmentGuide.wiki
 
 I Want a Hello, World!
 ----------------------
@@ -69,3 +86,12 @@ Okay, fine:
 
 But really, please read the docs if you actually want to use this.  They're not
 that long.
+
+Further Documentation
+---------------------
+
+* [Installation](./1-installation)
+* [Terminals](./2-terminals)
+* [Screens](./3-screens)
+* [Reference](./4-reference)
+* [Changelog](./5-changelog)
