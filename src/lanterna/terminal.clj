@@ -43,34 +43,56 @@
   (set (.getAvailableFontFamilyNames
         (GraphicsEnvironment/getLocalGraphicsEnvironment))))
 
-(defn- get-font [fonts]
-  "returns the first font out of the fonts seq 
-  which was found to be available on the system."
+(defn- get-font 
+  "returns the font if it is available, or nil else"
+  [font]
   (let [available (get-available-fonts)]
-    (first (filter available fonts))))
+    (available font)))
 
-(defn- get-factory [kind
+(defn- filter-fonts 
+  "filters a seq of font names to those which are available on the system."
+  [fonts]
+  (filter get-font fonts))
+
+(defn- fallback-fonts 
+  "returns a sane (?) default collection of usable monospace fonts"
+  []
+  (filter-fonts ["Droid Sans Mono" "Inconsolata" "DejaVu Sans Mono" "Consolas" "Monospaced" "Mono"]))
+
+(defn- get-factory 
+  "produces a terminal factory with various options setup:
+   :title     - window title, if applicable
+   :cols      - amount of columns requested
+   :rows      - amount of rows requested
+   :charset   - I/O character set requested
+   :font      - collection of font (in order of priority)
+   :font-size - font-size to use
+   :palette   - color palette to use
+  returns appropriately setup factory."
+  [kind
                     {:as opts
                      :keys [title cols rows charset font font-size palette]
                      :or {title "terminal"
                           cols 80
                           rows 24
                           charset :utf-8
-                          font ["Droid Sans Mono" "DejaVu Sans Mono" "Consolas" "Monospaced" "Mono"]
+                          font []
                           font-size 14
                           palette :mac-os-x}}]
-  (doto (DefaultTerminalFactory. System/out System/in (c/charsets charset))
-    (.setForceTextTerminal (= :text kind))
-    (.setForceAWTOverSwing (= :awt kind))
-    (.setTerminalEmulatorTitle title)
-    ;; (.setTerminalEmulatorFontConfiguration
-    ;;  (SwingTerminalFontConfiguration.
-    ;;   true
-    ;;   AWTTerminalFontConfiguration$BoldMode/EVERYTHING
-    ;;   (Font. (get-font font) Font/PLAIN font-size))) ;; TODO: This line is broken.
-    (.setInitialTerminalSize (TerminalSize. cols rows))
-    (.setTerminalEmulatorColorConfiguration (TerminalEmulatorColorConfiguration/newInstance (c/palettes palette)))
-    (.setTerminalEmulatorDeviceConfiguration (TerminalEmulatorDeviceConfiguration.)))) ; TODO: Allow customization
+  (let [filtered (filter-fonts font)
+        fonts (if-not (empty? filtered) filtered (fallback-fonts))]
+    (doto (new DefaultTerminalFactory System/out System/in (c/charsets charset))
+      (.setForceTextTerminal (= :text kind))
+      (.setForceAWTOverSwing (= :awt kind))
+      (.setTerminalEmulatorTitle title)
+      (.setTerminalEmulatorFontConfiguration
+        (new SwingTerminalFontConfiguration
+             true
+             AWTTerminalFontConfiguration$BoldMode/EVERYTHING
+             (into-array Font (map #(new Font % Font/PLAIN font-size) fonts))))
+        (.setInitialTerminalSize (new TerminalSize cols rows))
+        (.setTerminalEmulatorColorConfiguration (TerminalEmulatorColorConfiguration/newInstance (c/palettes palette)))
+        (.setTerminalEmulatorDeviceConfiguration (new TerminalEmulatorDeviceConfiguration))))) ; TODO: Allow customization
 
 
 (defn get-terminal
@@ -97,7 +119,7 @@
   :resize-listener - A function to call when the terminal is resized.  This
                      function should take two parameters: the new number of
                      columns, and the new number of rows.
-  :font      - Font to use. String or collection of strings.
+  :font      - Font to use. single string, or collection of strings.
                Use (lanterna.terminal/get-available-fonts) to see your options.
                Will fall back to a basic monospaced font if none of the given
                names are available.
@@ -122,7 +144,7 @@
                font-size 14
                palette :mac-os-x}}]
    (let [fonts (if (coll? font) font [font])
-         factory (get-factory kind opts)
+         factory (get-factory kind (assoc opts :font fonts))
          terminal (case kind
                     :unix (UnixTerminal. System/in System/out (c/charsets charset))
                     :cygwin (CygwinTerminal. System/in System/out (c/charsets charset))
