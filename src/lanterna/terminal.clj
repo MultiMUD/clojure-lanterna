@@ -37,11 +37,15 @@
   [^Terminal terminal listener]
   (.removeResizeListener terminal listener))
 
-(defn get-available-fonts []
+(defn get-available-fonts 
+  "returns a set of available font family names"
+  []
   (set (.getAvailableFontFamilyNames
         (GraphicsEnvironment/getLocalGraphicsEnvironment))))
 
 (defn- get-font [fonts]
+  "returns the first font out of the fonts seq 
+  which was found to be available on the system."
   (let [available (get-available-fonts)]
     (first (filter available fonts))))
 
@@ -76,8 +80,8 @@
 
   :auto   - Use a Swing terminal if a windowing system is present, or use a text
             based terminal appropriate to the operating system.
-  :cygwin - Force a Cygwin console terminal.
   :awt    - Force an AWT terminal
+  :cygwin - Force a Cygwin console terminal.
   :swing  - Force a Swing terminal
   :text   - Force a text-based (i.e. non-Swing) terminal.  Try to guess the
             appropriate kind of terminal (UNIX/Cygwin) by the OS.
@@ -128,17 +132,22 @@
      terminal)))
 
 (defn start
-  "Start the terminal.  Consider using in-terminal instead."
+  "Puts the terminal into private / alternate screen mode.
+  This typically results in a fresh screen space."
   [^Terminal terminal]
-  (.enterPrivateMode terminal))
+  (doto terminal
+    .enterPrivateMode))
 
 (defn stop
-  "Stop the terminal.  Consider using in-terminal instead."
+  "Returns from private / alternate screen mode. This may or
+  may not hide the private screen content and return the display
+  back to the state it was before entering private mode"
   [^Terminal terminal]
-  (.exitPrivateMode terminal))
+  (doto terminal 
+    .exitPrivateMode))
 
 (defmacro in-terminal
-  "Start the given terminal, perform the body, and stop the terminal afterward."
+  "Enter the terminal's private mode, perform the body, and stop the terminal afterward."
   [terminal & body]
   `(do
      (start ~terminal)
@@ -156,44 +165,62 @@
 (defn move-cursor
   "Move the cursor to a specific location on the screen."
   ([^Terminal terminal x y]
-   (.setCursorPosition terminal x y))
+   (doto terminal 
+     (.setCursorPosition x y)))
   ([^Terminal terminal [x y]]
-   (.setCursorPosition terminal x y)))
+   (move-cursor terminal x y)))
 
 (defn set-style
-  "Enter a style"
+  "Activates a single specific style for following draw operations
+  on the terminal."
   [^Terminal terminal style]
-  (.enableSGR terminal (c/styles style)))
+  (doto terminal
+    (.enableSGR (c/styles style))))
 
 (defn remove-style
-  "Exit a style"
+  "Deactivate a single specific style for following draw operations
+  on the terminal."
   [^Terminal terminal style]
-  (.disableSGR terminal (c/styles style)))
+  (doto terminal
+    (.disableSGR (c/styles style))))
 
 (defn reset-styles
-  "Reset all styles and return colors to their defaults"
+  "Reset all styles and return colors to their defaults for following
+  draw operations on the terminal"
   [^Terminal terminal]
-  (.resetColorAndSGR terminal))
+  (doto terminal
+    .resetColorAndSGR))
 
-(defn set-fg-color [^Terminal terminal color]
-  (.setForegroundColor terminal (c/colors color)))
+(defn set-fg-color 
+  "Sets the foreground color for following 
+  draw operation on the terminal to the given color"
+  [^Terminal terminal color]
+  (doto terminal
+    (.setForegroundColor (c/colors color))))
 
-(defn set-bg-color [^Terminal terminal color]
-  (.setBackgroundColor terminal (c/colors color)))
+(defn set-bg-color 
+  "Sets the background color for following 
+  draw operation on the terminal to the given color"
+  [^Terminal terminal color]
+  (doto terminal
+    (.setBackgroundColor (c/colors color))))
 
 (defn put-character
   "Draw the character at the current cursor location. If x and y are given,
-  moves the cursor there first. Moves the cursor one character to the right, so
-  a sequence of calls will output next to each other."
+  moves the cursor there first. Moves the cursor one character to the right
+  afterwards, so a sequence of calls will output next to each other. If
+  flush? is true (or not given), immediately flush the output terminal."
   ([^Terminal terminal ch flush?]
    (.putCharacter terminal ch)
-   (when flush? (.flush terminal)))
+   (when flush? (.flush terminal))
+   terminal)
   ([^Terminal terminal ch]
    (put-character terminal ch true))
   ([^Terminal terminal ch x y flush?]
    (move-cursor terminal x y)
    (put-character terminal ch)
-   (when flush? (.flush terminal)))
+   (when flush? (.flush terminal))
+   terminal)
   ([^Terminal terminal ch x y]
    (put-character terminal ch x y true)))
 
@@ -203,7 +230,8 @@
   the string."
   ([^Terminal terminal s]
    (doseq [c s] (put-character terminal c false))
-   (.flush terminal))
+   (.flush terminal)
+   terminal)
   ([^Terminal terminal ^String s ^Integer x ^Integer y]
    (move-cursor terminal x y)
    (put-string terminal s))
@@ -213,22 +241,22 @@
      :or {fg :default
           bg :default
           styles #{}}}]
-   (doseq [style styles] (set-style style))
-   (set-fg-color terminal fg)
-   (set-bg-color terminal bg)
-   (put-string terminal s x y)
-   (reset-styles terminal)))
+   (doseq [style styles] 
+     (set-style terminal style))
+   (-> terminal
+     (set-fg-color fg)
+     (set-bg-color bg)
+     (put-string s x y)
+     (reset-styles))))
 
 (defn clear
-  "Clear the terminal.
-
-  The cursor will be at 0 0 afterwards.
-
-  "
+  "Clear the terminal. The cursor will be at 0,0 afterwards, 
+  and the terminal flushed."
   [^Terminal terminal]
-  (.clearScreen terminal)
-  (move-cursor terminal 0 0)
-  (.flush terminal))
+  (doto terminal
+    .clearScreen
+    (move-cursor 0 0)
+    .flush))
 
 (defn get-cursor
   "Return the cursor position as [x y]."
