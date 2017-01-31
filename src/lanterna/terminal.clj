@@ -168,6 +168,15 @@
   (doto terminal 
     .exitPrivateMode))
 
+(defn flush
+  "Flushes the terminal. This may be flushing buffered I/O on the
+  underlying ByteInput/OutputStreams, or a no-op for specific
+  terminal implementations. Without flushing, there is no guarantee
+  draw operations since the last flush will be displayed."
+  [^Terminal terminal]
+  (doto terminal
+    .flush))
+
 (defmacro in-terminal
   "Enter the terminal's private mode, perform the body, and stop the terminal afterward."
   [terminal & body]
