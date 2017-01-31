@@ -13,7 +13,8 @@
            java.awt.GraphicsEnvironment
            java.awt.Font)
   (:require [lanterna.constants :as c]
-            [lanterna.input :as i]))
+            [lanterna.input :as i])
+  (:refer-clojure :exclude [flush]))
 
 (defn add-resize-listener
   "Create a listener that will call the supplied fn when the terminal is resized.
