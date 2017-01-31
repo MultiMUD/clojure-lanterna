@@ -5,6 +5,14 @@
             [lanterna.terminal :as t]
             [lanterna.input :as i]))
 
+;;;
+;;; FIXME
+;;;
+;;; This all here assumes it is safe and sane to access the underlying
+;;; terminal of a screen. Lanterna-3 documentation explicitly states
+;;; that this is NOT the case. Instead, we should be writing characters
+;;; to the back buffer of the screen and then call its reset method.
+
 (defn enumerate [s]
   (map vector (iterate inc 0) s))
 
@@ -71,11 +79,11 @@
 
   The Swing screen will start out at this size but can be resized later by the
   user, and will ignore the charset entirely."
-  ([] (get-screen {}))
-  ([{:as opts
-     :keys [kind title cols rows charset resize-listener font font-size palette]
-     :or {:kind :auto
-          :title "terminal"
+  ([] (get-screen :auto {}))
+  ([kind] (get-screen kind {}))
+  ([kind {:as opts
+     :keys [title cols rows charset resize-listener font font-size palette]
+     :or {:title "terminal"
           :cols 80
           :rows 24
           :charset :utf-8
@@ -83,7 +91,7 @@
           :font ["Droid Sans Mono" "DejaVu Sans Mono" "Consolas" "Monospaced" "Mono"]
           :font-size 14
           :palette :mac-os-x}}]
-   (new TerminalScreen (t/get-terminal opts))))
+   (new TerminalScreen (t/get-terminal kind opts))))
 
 (defn start
   "Initialize the screen. This must be called before doing anything else to the
