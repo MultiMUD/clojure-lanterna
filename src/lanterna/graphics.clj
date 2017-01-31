@@ -6,97 +6,110 @@
            com.googlecode.lanterna.graphics.TextGraphics
            com.googlecode.lanterna.screen.TerminalScreen))
 
-;; Strangely, screens and terminals are duck-polymorphic in their handling of
-;; graphics. We don't need to get the underlying terminals in this situation,
-;; unlike in term.clj
-
 (defn- styled-graphics
   "Return a TextGraphics object with the corresponding styles"
   [term {:keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
   (let [text (.newTextGraphics term)]
-    (.enableModifiers text (into-array com.googlecode.lanterna.SGR (map c/styles styles)))
     (doto text
+      (.enableModifiers (into-array com.googlecode.lanterna.SGR (map c/styles styles)))
       (.setForegroundColor (c/colors fg))
-      (.setBackgroundColor (c/colors bg)))
-    text))
+      (.setBackgroundColor (c/colors bg)))))
 
-(defn draw-line!
+(defn draw-line
+  "draws a line on the given term from coordinates
+  from-x, from-y to to-x, to-y with the given character
+  ch. This character is styled with the given 
+  foreground (:fg), background (:bg) and
+  additional styles (:styles set). returns term."
   ([term [from-x from-y] [to-x to-y] ch]
-   (draw-line! term from-x from-y to-x to-y ch {}))
+   (draw-line term from-x from-y to-x to-y ch {}))
   ([term from-x from-y to-x to-y ch]
-   (draw-line! term from-x from-y to-x to-y ch {}))
+   (draw-line term from-x from-y to-x to-y ch {}))
   ([term from-x from-y to-x to-y ch
     {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
    (.drawLine (styled-graphics term opts)
-              (TerminalPosition. from-x from-y)
-              (TerminalPosition. to-x to-y)
-              ch)))
+              (new TerminalPosition from-x from-y)
+              (new TerminalPosition to-x to-y)
+              ch)
+   term))
 
-(defn draw-rectangle!
+(defn draw-rectangle
+  "draws a rectangle (outline) on the given term at coordinates x, y with
+  width w and height h with the given character ch. This character
+  is styled with the given foreground (:fg), background (:bg) and
+  additional styles (:styles set). returns term."
   ([term [x y] [w h] ch]
-   (draw-rectangle! term x y w h ch {}))
+   (draw-rectangle term x y w h ch {}))
   ([term x y w h ch]
-   (draw-rectangle! term x y w h ch {}))
+   (draw-rectangle term x y w h ch {}))
   ([term x y w h ch
     {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
    (.drawRectangle (styled-graphics term opts)
-                   (TerminalPosition. x y)
-                   (TerminalSize. h w)
-                   ch)))
+                   (new TerminalPosition x y)
+                   (new TerminalSize h w)
+                   ch)
+   term))
 
-(defn draw-triangle!
+(defn draw-triangle
+  "draws a triangle (outline) on the given term between coordinate
+  paris ax, ay; bx, by and cx, cy with the given character ch. This character
+  is styled with the given foreground (:fg), background (:bg) and
+  additional styles (:styles set). returns term."
   ([term [ax ay] [bx by] [cx cy] ch]
-   (draw-triangle! term ax ay bx by cx cy ch {}))
+   (draw-triangle term ax ay bx by cx cy ch {}))
   ([term ax ay bx by cx cy ch]
-   (draw-triangle! term ax ay bx by cx cy ch {}))
+   (draw-triangle term ax ay bx by cx cy ch {}))
   ([term ax ay bx by cx cy ch
     {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
    (.drawTriangle (styled-graphics term opts)
-                  (TerminalPosition. ax ay)
-                  (TerminalPosition. bx by)
-                  (TerminalPosition. cx cy)
-                  ch)))
+                  (new TerminalPosition ax ay)
+                  (new TerminalPosition bx by)
+                  (new TerminalPosition cx cy)
+                  ch)
+   term))
 
-(defn fill!
+(defn fill
+  "fills the given term with the given character ch. This character
+  is styled with the given foreground (:fg), background (:bg) and
+  additional styles (:styles set). returns term."
   ([term ch]
-   (fill! term ch {}))
+   (fill term ch {}))
   ([term ch
     {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
-   (.fill (styled-graphics term opts) ch)))
+   (.fill (styled-graphics term opts) ch)
+   term))
 
-(defn fill-line!
-  ([term [from-x from-y] [to-x to-y] ch]
-   (fill-line! term from-x from-y to-x to-y ch {}))
-  ([term from-x from-y to-x to-y ch]
-   (fill-line! term from-x from-y to-x to-y ch {}))
-  ([term from-x from-y to-x to-y ch
-    {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
-   (.fillLine (styled-graphics term opts)
-              (TerminalPosition. from-x from-y)
-              (TerminalPosition. to-x to-y)
-              ch)))
-
-(defn fill-rectangle!
+(defn fill-rectangle
+  "draws a rectangle (filled) on the given term at coordinates x, y with
+  width w and height h with the given character ch. This character
+  is styled with the given foreground (:fg), background (:bg) and
+  additional styles (:styles set). returns term."
   ([term [x y] [w h] ch]
-   (fill-rectangle! term x y w h ch {}))
+   (fill-rectangle term x y w h ch {}))
   ([term x y w h ch]
-   (fill-rectangle! term x y w h ch {}))
+   (fill-rectangle term x y w h ch {}))
   ([term x y w h ch
     {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}]
    (.fillRectangle (styled-graphics term opts)
-                   (TerminalPosition. x y)
-                   (TerminalSize. h w)
-                   ch)))
+                   (new TerminalPosition x y)
+                   (new TerminalSize h w)
+                   ch)
+   term))
 
-(defn fill-triangle!
+(defn fill-triangle
+  "draws a triangle (filled) on the given term between coordinate
+  paris ax, ay; bx, by and cx, cy with the given character ch. This character
+  is styled with the given foreground (:fg), background (:bg) and
+  additional styles (:styles set). returns term."
   ([term [ax ay] [bx by] [cx cy] ch]
-   (fill-triangle! term ax ay bx by cx cy ch {}))
+   (fill-triangle term ax ay bx by cx cy ch {}))
   ([term ax ay bx by cx cy ch]
-   (fill-triangle! term ax ay bx by cx cy ch {}))
+   (fill-triangle term ax ay bx by cx cy ch {}))
   ([term ax ay bx by cx cy ch
     {:as opts :keys [fg bg styles] :or {:fg :default :bg :default :styles #{}}}    ]
    (.fillTriangle (styled-graphics term opts)
-                  (TerminalPosition. ax ay)
-                  (TerminalPosition. bx by)
-                  (TerminalPosition. cx cy)
-                  ch)))
+                  (new TerminalPosition ax ay)
+                  (new TerminalPosition bx by)
+                  (new TerminalPosition cx cy)
+                  ch)
+   term))
