@@ -1,5 +1,6 @@
 (ns lanterna.screen
   (:import 
+    [com.googlecode.lanterna SGR TerminalPosition TextCharacter]
     [com.googlecode.lanterna.screen Screen TerminalScreen])
   (:require [lanterna.constants :as c]
             [lanterna.terminal :as t]
@@ -26,13 +27,13 @@
   but you can use it to remove it later with remove-resize-listener.
 
   "
-  [^TerminalScreen screen listener-fn]
+  [^Screen screen listener-fn]
   (t/add-resize-listener (.getTerminal screen)
                          listener-fn))
 
 (defn remove-resize-listener
   "Remove a resize listener from the given screen."
-  [^TerminalScreen screen listener]
+  [^Screen screen listener]
   (t/remove-resize-listener (.getTerminal screen) listener))
 
 (defn get-screen
@@ -97,14 +98,16 @@
   "Initialize the screen. This must be called before doing anything else to the
   screen."
   [^Screen screen]
-  (.startScreen screen))
+  (doto screen
+    .startScreen))
 
 (defn stop
   "Stop the screen. This should be called when you're done with the screen.
   Don't try to do anything else to it after stopping it.
   TODO: Figure out if it's safe to start, stop, and then restart a screen."
   [^Screen screen]
-  (.stopScreen screen))
+  (doto screen
+    .stopScreen))
 
 
 (defmacro in-screen
@@ -117,28 +120,65 @@
 
 (defn get-size
   "Return the current size of the screen as [cols rows]."
-  [^TerminalScreen screen]
-  (let [size (.getTerminalSize (.getTerminal screen))]
+  [^Screen screen]
+  (let [size (.getTerminalSize screen)]
     [(.getColumns size) (.getRows size)]))
 
 (defn redraw
   "Draw the screen, flushing all changes from the back buffer to the front
   buffer. Call this function after making a batch of changes to the back buffer
   to display them."
-  [^TerminalScreen screen]
-  (.refresh screen))
+  [^Screen screen]
+  (doto screen
+    .refresh))
 
 (defn move-cursor
   "Move the cursor to a specific location on the screen."
-  ([^TerminalScreen screen x y]
-   (t/move-cursor (.getTerminal screen) x y))
-  ([^TerminalScreen screen [x y]]
-   (t/move-cursor (.getTerminal screen) x y)))
+  ([^Screen screen x y]
+   (doto screen
+     (.setCursorPosition (new TerminalPosition x y))))
+  ([^Screen screen [x y]]
+   (move-cursor screen x y)))
 
 (defn get-cursor
   "Return the cursor position as [x y]."
-  [^TerminalScreen screen]
-  (t/get-cursor (.getTerminal screen)))
+  [^Screen screen]
+  (let [pos (.getCursorPosition screen)
+        x (.getColumn pos)
+        y (.getRow pos)]
+    [x y]))
+
+(defn put-character
+  "Put a character on the screen buffer. Adjusts the cursor position
+  to be behind the character.
+  x and y are the column and row to start the string.
+  ch is the actual character to draw. Note that this cannot be a control character!
+
+  Options can contain any of the following:
+
+  :fg - Foreground color. Can be any one of (keys lanterna.constants/colors).
+  (default :default)
+  :bg - Background color. Can be any one of (keys lanterna.constants/colors).
+  (default :default)
+  :styles - Styles to apply to the text. Can be a set containing some/none/all
+  of (keys lanterna.constants/styles). (default #{})"
+  ([^Screen screen ^Character ch]
+   (let [[x y] (get-cursor screen)]
+     (put-character screen ch x y {})))
+  ([^Screen screen ^Character ch ^Integer x ^Integer y]
+   (put-character screen ch x y {}))
+  ([^Screen screen ^Character ch ^Integer x ^Integer y
+    {:as opts
+     :keys [fg bg styles]
+     :or {fg :default
+          bg :default
+          styles #{}}}]
+   (let [tchar (new TextCharacter ch (c/colors fg) (c/colors bg)
+                    (into-array SGR (map c/styles styles)))]
+     (move-cursor 
+       (doto screen
+         (.setCharacter x y tchar)) 
+       (inc x) y))))
 
 (defn put-string
   "Put a string on the screen buffer, ready to be drawn at the next redraw.
@@ -154,17 +194,20 @@
         (default :default)
   :styles - Styles to apply to the text. Can be a set containing some/none/all
             of (keys lanterna.constants/styles). (default #{})"
-  ([^TerminalScreen screen ^String s]
-   (t/put-string (.getTerminal screen) s))
-  ([^TerminalScreen screen ^String s ^Integer x ^Integer y]
-   (t/put-string (.getTerminal screen) s x y))
-  ([^TerminalScreen screen ^String s ^Integer x ^Integer y
+  ([^Screen screen ^String s]
+   (let [[x y] (get-cursor screen)]
+     (put-string screen s x y {})))
+  ([^Screen screen ^String s ^Integer x ^Integer y]
+    (put-string screen s x y {}))
+  ([^Screen screen ^String s ^Integer x ^Integer y
     {:as opts
      :keys [fg bg styles]
      :or {fg :default
           bg :default
           styles #{}}}]
-   (t/put-string (.getTerminal screen) x y s opts)))
+   (doseq [[incx ch] (enumerate s)]
+     (put-character screen ch (+ x incx) y opts))
+   screen))
 
 (defn put-sheet
   "EXPERIMENTAL!  Turn back now!
@@ -234,9 +277,10 @@
         (put-row (+ y i) row)))))
 
 (defn clear
-  "Clear the screen. This is buffered - redraw the screen to see the effect."
-  [^TerminalScreen screen]
-  (.clear screen))
+  "Clear the screen. This is buffered - redraw the screen to see the effect.
+  Resets the cursor position to 0, 0"
+  [^Screen screen]
+  (move-cursor (doto screen .clear) 0 0))
 
 (def get-keystroke i/get-keystroke)
 (def get-key i/get-key)
