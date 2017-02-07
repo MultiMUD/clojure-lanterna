@@ -1,9 +1,10 @@
 (ns lanterna.input
   (:require 
     [lanterna.constants :as c]
-    [lanterna.api :as api])
+    [lanterna.protocols :as prot])
   (:import 
-    [com.googlecode.lanterna.input InputProvider KeyStroke]))
+    [com.googlecode.lanterna.input InputProvider KeyStroke]
+    [lanterna.protocols Input]))
 
 (defn- parse-key 
   "Return a character or keyword representing the KeyStroke"
@@ -28,8 +29,9 @@
    (let [key (.readInput provider)]
      {:key (parse-key key) :ctrl (.isCtrlDown key) :alt (.isAltDown key) :shift (.isShiftDown key)})))
 
-(extend-type InputProvider api/Input
-  (poll-stroke [this]
+(extend-type InputProvider 
+  prot/Input
+  (-poll-stroke [this]
     (get-keystroke this))
-  (get-stroke [this]
+  (-get-stroke [this]
     (get-keystroke-blocking this)))

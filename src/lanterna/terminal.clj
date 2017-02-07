@@ -11,7 +11,7 @@
   (:require 
     [lanterna.constants :as c]
     [lanterna.input :as i]
-    [lanterna.api :as api])
+    [lanterna.protocols :as prot])
   (:refer-clojure :exclude [flush]))
 
 (defn add-resize-listener
@@ -294,28 +294,28 @@
   (let [pos (.getCursorPosition terminal)]
     [(.getColumn pos) (.getRow pos)]))
 
-(extend-type Terminal api/Output
-  (write-char [this ch [x y] {:as opts :keys [fg bg styles flush?]}]
+(extend-type Terminal prot/Output
+  (-write-char [this ch [x y] {:as opts :keys [fg bg styles flush?]}]
     (put-character this ch x y flush?))
-  (write-string [this string [x y] {:as opts :keys [fg bg styles flush?]}]
+  (-write-string [this string [x y] {:as opts :keys [fg bg styles flush?]}]
     (put-string this string x y opts))
-  (get-cursor [this] (get-cursor this))
-  (set-cursor [this [x y]] (move-cursor this x y))
-  (flush [this] (flush this))
-  (clear [this] (clear this))
-  (start [this] (start this))
-  (stop [this] (stop this))
-  (get-size [this] (get-size this))
-  (get-fg [this])
-  (set-fg [this fg])
-  (get-bg [this])
-  (set-bg [this bg])
-  (get-styles [this])
-  (set-styles [this styles])
-  (terminal [this] this)
-  (screen [this] nil)
-  (gui [this] nil)
-  (textgraphics [this] (.newTextGraphics this)))
+  (-get-cursor [this] (get-cursor this))
+  (-set-cursor [this [x y]] (move-cursor this x y))
+  (-flush [this] (flush this))
+  (-clear [this] (clear this))
+  (-start [this] (start this))
+  (-stop [this] (stop this))
+  (-get-size [this] (get-size this))
+  (-get-fg [this])
+  (-set-fg [this fg])
+  (-get-bg [this])
+  (-set-bg [this bg])
+  (-get-styles [this])
+  (-set-styles [this styles])
+  (-terminal [this] this)
+  (-screen [this] nil)
+  (-gui [this] nil)
+  (-textgraphics [this] (.newTextGraphics this)))
 
 (comment
 (def get-keystroke i/get-keystroke)
