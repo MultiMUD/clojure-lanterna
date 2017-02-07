@@ -13,6 +13,7 @@ Read the [documentation][] to learn more.
 ## License
 
 Copyright 2017 Martin S. Weber and contributors
+
 Copyright 2012-2016 Steve Losh and contributors
 
 Distributed under the GNU Lesser General Public License, the same as Lanterna
