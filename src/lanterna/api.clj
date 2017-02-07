@@ -1,5 +1,9 @@
 (ns lanterna.api
-  (:refer-clojure :exclude [flush]))
+  (:refer-clojure :exclude [flush])
+  (:require
+    [lanterna.constants :as c])
+  (:import 
+    [com.googlecode.lanterna.input KeyStroke]))
 
 ;;; TODO:
 ;;; * graphics operations into the generic API. All these graphics
@@ -13,13 +17,15 @@
 
 ;;; FIXME:
 ;;; implement for:
-;;; * com.googlecode.lanterna.terminal.Terminal
 ;;; * com.googlecode.lanterna.screen.Screen
 ;;; * com.googlecode.lanterna.TextGraphics
 ;;; ?? MultiWindowTextGUI?
 ;;;
 (defprotocol Output
-  (put-char 
+  "A protocol to generate an interface so we can find a common
+  ancestor for terminals and screens, text graphics, etc.
+  Allows to offer a stable, reflection-less API across potential output providers."
+  (write-char 
     [this ch [x y] {:as opts :keys [fg bg styles flush?]}]
     "writes out a single (java.lang.)Character ch on the x/y position given,
     with the specific options:
@@ -29,7 +35,7 @@
     :flush?   - if true, \"flush\" this, whatever that means
     warning: do not output control characters.
     returns self.")
-  (put-string
+  (write-string
     [this string [x y] {:as opts :keys [fg bg styles flush?]}]
     "writes out a single (java.lang.)String string on the x/y position given,
     with the specific options:
@@ -109,7 +115,7 @@
   on the output. Does not cope well with control
   characters in the string (including newline).
   Returns self."
-  [^Output self string]
+  [^lanterna.api.Output self string]
    self)
 
 (defn put-char
@@ -118,7 +124,7 @@
   on the output. Does not cope well with ch being
   a control character (including newline).
   Returns self."
-  [^Output self ch]
+  [^lanterna.api.Output self ch]
   self)
 
 (defn safe-put
@@ -126,20 +132,15 @@
   thereof) starting at the current cursor position on the output. 
   Does cope well with control characters, multiple lines etc.
   Returns self."
-  [^Output self single-thing]
+  [^lanterna.api.Output self single-thing]
   self)
 
 (defn put-sheet
   "generically support the experimental `sheet' API based on the
   Output protocol. Returns self."
-  [^Output self sheet]
+  [^lanterna.api.Output self sheet]
   self)
 
-;;; FIXME:
-;;; implement for:
-;;; * com.googlecode.lanterna.terminal.Terminal
-;;; * com.googlecode.lanterna.screen.Screen
-;;; ?? MultiWindowTextGUI?
 (defprotocol Input
   "A protocol to generate an interface so we can find a common
   ancestor for terminals and screens (potentially GUIs, TextGraphics, ...).
@@ -151,27 +152,34 @@
     keystroke (a map with :key :ctrl :alt :shift keys)
     or nil if the buffer is empty.")
   (get-stroke 
-    [this {:as opts :keys [timeout unit] :or {timeout -1}}]
+    [this]
     "returns a single key info map (bearing :key :ctrl :alt :shift
     keys) from the input.
-    Blocks for timeout unit (default: indefinitely) if there is
-    no input available."))
+    Blocks if there is no input available."))
 
-;;; FIXME implement in terms of protocol above
-;;;
-(defn poll-char 
+(defn- parse-key 
+  "Return a character or keyword representing the KeyStroke"
+  [^KeyStroke k]
+  (if (= :normal (c/key-codes (.getKeyType k)))
+    (.getCharacter k)
+    (c/key-codes (.getKeyType k))))
+
+(defn ^Character poll-char 
     "returns (immediately) a single character from 
     the input buffer, or nil if it is empty."
-    [this]
-  nil)
+    [^lanterna.api.Input this]
+  (if-let [stroke (poll-stroke this)]
+    (parse-key stroke)))
 
-(defn get-char 
+(defn ^Character get-char 
     "returns a single character from the input.
-    Blocks for timeout unit (default: indefinitely) if there is
-    no input available."
-    [this {:as opts :keys [timeout unit] :or {timeout -1}}]
-  nil)
+    Blocks if there is no input available."
+    [^lanterna.api.Input this]
+  (if-let [stroke (get-stroke this)]
+    (parse-key stroke)))
 
+;;; FIXME: implement
+;;; Do we keep the timeout on this one?
 (defn get-string 
     "returns a string from the input which is terminated by the
     given eos (end of string, a regular expression pattern).
@@ -181,5 +189,5 @@
     is returned, and _not_ put back into the input buffer.
     Blocks for timeout unit (default: indefinitely) if there is
     no input available."
-  [^Input self eos {:as opts :keys [timeout unit] :or {timeout -1}}]
+  [^lanterna.api.Input self eos {:as opts :keys [timeout unit] :or {timeout -1}}]
   nil)
