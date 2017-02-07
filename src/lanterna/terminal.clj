@@ -1,19 +1,17 @@
 (ns lanterna.terminal
-  (:import com.googlecode.lanterna.TerminalSize
-           com.googlecode.lanterna.terminal.Terminal
-           com.googlecode.lanterna.terminal.DefaultTerminalFactory
-           com.googlecode.lanterna.terminal.SimpleTerminalResizeListener
-           com.googlecode.lanterna.terminal.ansi.UnixTerminal
-           com.googlecode.lanterna.terminal.ansi.CygwinTerminal
-           com.googlecode.lanterna.terminal.swing.SwingTerminal
-           com.googlecode.lanterna.terminal.swing.SwingTerminalFontConfiguration
-           com.googlecode.lanterna.terminal.swing.TerminalEmulatorColorConfiguration
-           com.googlecode.lanterna.terminal.swing.TerminalEmulatorDeviceConfiguration
-           com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration$BoldMode
-           java.awt.GraphicsEnvironment
-           java.awt.Font)
-  (:require [lanterna.constants :as c]
-            [lanterna.input :as i])
+  (:import 
+    [com.googlecode.lanterna TerminalSize]
+    [com.googlecode.lanterna.terminal DefaultTerminalFactory SimpleTerminalResizeListener
+     Terminal TerminalFactory]
+    [com.googlecode.lanterna.terminal.ansi CygwinTerminal UnixTerminal]
+    [com.googlecode.lanterna.terminal.swing AWTTerminalFontConfiguration$BoldMode
+     SwingTerminal SwingTerminalFontConfiguration TerminalEmulatorColorConfiguration 
+     TerminalEmulatorDeviceConfiguration]
+    [java.awt Font GraphicsEnvironment])
+  (:require 
+    [lanterna.constants :as c]
+    [lanterna.input :as i]
+    [lanterna.api :as api])
   (:refer-clojure :exclude [flush]))
 
 (defn add-resize-listener
@@ -25,7 +23,7 @@
   but you can use it to remove it later with remove-resize-listener."
   [^Terminal terminal listener-fn]
   (let [listener (proxy [SimpleTerminalResizeListener] [(.getTerminalSize terminal)]
-                   (onResized [terminal newSize]
+                   (onResized [terminal ^TerminalSize newSize]
                      (listener-fn
                       terminal
                       (.getColumns newSize)
@@ -60,7 +58,7 @@
   []
   (filter-fonts ["Droid Sans Mono" "Inconsolata" "DejaVu Sans Mono" "Consolas" "Monospaced" "Mono"]))
 
-(defn- get-factory 
+(defn- ^TerminalFactory get-factory 
   "produces a terminal factory with various options setup:
    :title     - window title, if applicable
    :cols      - amount of columns requested
@@ -296,7 +294,31 @@
   (let [pos (.getCursorPosition terminal)]
     [(.getColumn pos) (.getRow pos)]))
 
+(extend-type Terminal api/Output
+  (write-char [this ch [x y] {:as opts :keys [fg bg styles flush?]}]
+    (put-character this ch x y flush?))
+  (write-string [this string [x y] {:as opts :keys [fg bg styles flush?]}]
+    (put-string this string x y opts))
+  (get-cursor [this] (get-cursor this))
+  (set-cursor [this [x y]] (move-cursor this x y))
+  (flush [this] (flush this))
+  (clear [this] (clear this))
+  (start [this] (start this))
+  (stop [this] (stop this))
+  (get-size [this] (get-size this))
+  (get-fg [this])
+  (set-fg [this fg])
+  (get-bg [this])
+  (set-bg [this bg])
+  (get-styles [this])
+  (set-styles [this styles])
+  (terminal [this] this)
+  (screen [this] nil)
+  (gui [this] nil)
+  (textgraphics [this] (.newTextGraphics this)))
+
+(comment
 (def get-keystroke i/get-keystroke)
 (def get-key i/get-key)
 (def get-keystroke-blocking i/get-keystroke-blocking)
-(def get-key-blocking i/get-keystroke-blocking)
+(def get-key-blocking i/get-keystroke-blocking))
