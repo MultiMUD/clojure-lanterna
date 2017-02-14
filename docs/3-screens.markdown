@@ -104,9 +104,13 @@ original "Hello, world!" is still there.  Screens redraw *changes*, they don't
 start from scratch every time.
 
 If you want to remove old text you'll need to clear it out yourself by drawing
-over it with spaces.
+over it with spaces. Here's an example of printing " " across the full screen:
 
-TODO: add a `clear-screen` function to make this suck less.
+    :::clojure
+    (let [[width height] (s/get-size scr)
+          spaces         (apply str (repeat width " "))]
+      (dorun (map #(s/put-string scr 0 % spaces) (range height)))
+      (s/redraw scr))
 
 ### Colors
 
