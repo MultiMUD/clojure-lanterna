@@ -53,8 +53,8 @@
    :vga        TerminalPalette/STANDARD_VGA
    :windows-xp TerminalPalette/WINDOWS_XP_COMMAND_PROMPT
    :mac-os-x   TerminalPalette/MAC_OS_X_TERMINAL_APP
-   :xterm      TerminalPalette/PUTTY
-   :putty      TerminalPalette/XTERM})
+   :xterm      TerminalPalette/XTERM
+   :putty      TerminalPalette/PUTTY})
 
 (def enter-styles
   {:bold com.googlecode.lanterna.terminal.Terminal$SGR/ENTER_BOLD
